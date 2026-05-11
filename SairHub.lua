@@ -1,14 +1,13 @@
--- SairHub v2 | Optimized Performance Version
+-- SairHub v2 | Content Display Fix + Right Ctrl Fix
 local startTime = tick()
 
--- Cache services at top level
 local Players = game:GetService("Players")
 local UserInputService = game:GetService("UserInputService")
 
 local player = Players.LocalPlayer
 local playerGui = player:WaitForChild("PlayerGui")
 
--- Predefine colors (no function calls needed)
+-- Colors
 local Colors = {
     Background = Color3.new(0.098, 0.09, 0.141),
     Sidebar = Color3.new(0.118, 0.11, 0.18),
@@ -21,12 +20,13 @@ local Colors = {
     Close = Color3.new(1, 0.333, 0.333)
 }
 
--- Create all GUI elements at once using clones (faster)
+-- Create ScreenGui
 local screenGui = Instance.new("ScreenGui")
 screenGui.Name = "SairHub"
+screenGui.ResetOnSpawn = false
 screenGui.Parent = playerGui
 
--- Build main frame
+-- Main Container - START VISIBLE
 local mainFrame = Instance.new("Frame")
 mainFrame.Size = UDim2.new(0, 600, 0, 380)
 mainFrame.Position = UDim2.new(0.5, -300, 0.5, -190)
@@ -34,18 +34,17 @@ mainFrame.BackgroundColor3 = Colors.Background
 mainFrame.BackgroundTransparency = 0.15
 mainFrame.BorderSizePixel = 0
 mainFrame.Visible = true
-mainFrame.ClipsDescendants = true
+mainFrame.Active = true
 mainFrame.Parent = screenGui
 
--- Single UIStroke instead of individual borders
+-- Border
 local uiStroke = Instance.new("UIStroke")
 uiStroke.Color = Colors.Accent
 uiStroke.Thickness = 1.5
 uiStroke.Transparency = 0.3
 uiStroke.Parent = mainFrame
 
--- Use less transparency layers (reduces rendering)
--- Combine title bar with sidebar background
+-- Top Bar
 local topBar = Instance.new("Frame")
 topBar.Size = UDim2.new(1, 0, 0, 30)
 topBar.BackgroundColor3 = Colors.Sidebar
@@ -63,7 +62,7 @@ titleLabel.TextSize = 16
 titleLabel.TextXAlignment = Enum.TextXAlignment.Left
 titleLabel.Parent = topBar
 
--- Close button
+-- Close Button
 local closeButton = Instance.new("TextButton")
 closeButton.Size = UDim2.new(0, 25, 0, 25)
 closeButton.Position = UDim2.new(1, -28, 0, 3)
@@ -81,50 +80,77 @@ closeButton.MouseButton1Click:Connect(function()
     mainFrame.Visible = false
 end)
 
--- Create sidebar ONCE (no separate background frames)
+-- Sidebar
 local sidebar = Instance.new("Frame")
 sidebar.Size = UDim2.new(0, 150, 1, -30)
 sidebar.Position = UDim2.new(0, 0, 0, 30)
 sidebar.BackgroundColor3 = Colors.Sidebar
 sidebar.BackgroundTransparency = 0.3
 sidebar.BorderSizePixel = 0
-sidebar.ClipsDescendants = true
 sidebar.Parent = mainFrame
 
--- Content area
+-- Sidebar Separator Line
+local sideSep = Instance.new("Frame")
+sideSep.Size = UDim2.new(0, 1, 1, 0)
+sideSep.Position = UDim2.new(1, 0, 0, 0)
+sideSep.BackgroundColor3 = Colors.Accent
+sideSep.BackgroundTransparency = 0.5
+sideSep.BorderSizePixel = 0
+sideSep.Parent = sidebar
+
+-- Content Area (WHERE TEXT SHOWS)
 local contentArea = Instance.new("Frame")
 contentArea.Size = UDim2.new(1, -150, 1, -30)
 contentArea.Position = UDim2.new(0, 150, 0, 30)
 contentArea.BackgroundTransparency = 1
-contentArea.ClipsDescendants = true
 contentArea.Parent = mainFrame
 
--- Content label (reused)
-local contentLabel = Instance.new("TextLabel")
-contentLabel.Size = UDim2.new(1, -40, 0, 50)
-contentLabel.Position = UDim2.new(0, 20, 0, 20)
-contentLabel.BackgroundTransparency = 1
-contentLabel.Text = "Main"
-contentLabel.TextColor3 = Colors.Text
-contentLabel.Font = Enum.Font.GothamLight
-contentLabel.TextSize = 48
-contentLabel.TextXAlignment = Enum.TextXAlignment.Left
-contentLabel.TextYAlignment = Enum.TextYAlignment.Top
-contentLabel.TextTransparency = 0.3
-contentLabel.Parent = contentArea
+-- BIG Title Text (Shows "Main", "Farm", etc.)
+local sectionTitle = Instance.new("TextLabel")
+sectionTitle.Size = UDim2.new(1, -40, 0, 60)
+sectionTitle.Position = UDim2.new(0, 25, 0, 15)
+sectionTitle.BackgroundTransparency = 1
+sectionTitle.Text = "MAIN"
+sectionTitle.TextColor3 = Colors.Text
+sectionTitle.Font = Enum.Font.GothamBlack
+sectionTitle.TextSize = 42
+sectionTitle.TextXAlignment = Enum.TextXAlignment.Left
+sectionTitle.TextTransparency = 0.1
+sectionTitle.Parent = contentArea
 
+-- Subtitle Text
 local subtitleLabel = Instance.new("TextLabel")
-subtitleLabel.Size = UDim2.new(1, -40, 0, 20)
-subtitleLabel.Position = UDim2.new(0, 20, 0, 80)
+subtitleLabel.Size = UDim2.new(1, -40, 0, 25)
+subtitleLabel.Position = UDim2.new(0, 25, 0, 75)
 subtitleLabel.BackgroundTransparency = 1
-subtitleLabel.Text = "Welcome to SairHub"
+subtitleLabel.Text = "Main Features"
 subtitleLabel.TextColor3 = Colors.TextDim
 subtitleLabel.Font = Enum.Font.Gotham
-subtitleLabel.TextSize = 14
+subtitleLabel.TextSize = 15
 subtitleLabel.TextXAlignment = Enum.TextXAlignment.Left
 subtitleLabel.Parent = contentArea
 
--- Pre-create a template button for cloning (MASSIVE performance boost)
+-- Divider line under subtitle
+local divider = Instance.new("Frame")
+divider.Size = UDim2.new(1, -50, 0, 1)
+divider.Position = UDim2.new(0, 25, 0, 105)
+divider.BackgroundColor3 = Colors.Accent
+divider.BackgroundTransparency = 0.7
+divider.BorderSizePixel = 0
+divider.Parent = contentArea
+
+-- Where toggles will be placed
+local togglesFrame = Instance.new("Frame")
+togglesFrame.Size = UDim2.new(1, -50, 1, -115)
+togglesFrame.Position = UDim2.new(0, 25, 0, 115)
+togglesFrame.BackgroundTransparency = 1
+togglesFrame.Parent = contentArea
+
+-- Toggle storage
+local toggleStorage = {}
+local selectedButton = nil
+
+-- Template button for cloning
 local buttonTemplate = Instance.new("TextButton")
 buttonTemplate.BackgroundTransparency = 0.3
 buttonTemplate.BorderSizePixel = 0
@@ -133,23 +159,19 @@ buttonTemplate.TextSize = 12
 buttonTemplate.TextXAlignment = Enum.TextXAlignment.Left
 buttonTemplate.AutoButtonColor = false
 
-local toggleStorage = {}
-local selectedButton = nil
-
--- Optimized toggle creator using template
+-- Create Content Toggle
 local function createContentToggle(name, yPosition, toggleKey)
     if toggleStorage[toggleKey] == nil then
         toggleStorage[toggleKey] = false
     end
     
-    -- Clone template instead of creating new (FASTER)
     local button = buttonTemplate:Clone()
-    button.Size = UDim2.new(0.9, 0, 0, 28)
-    button.Position = UDim2.new(0.05, 0, yPosition, 0)
+    button.Size = UDim2.new(1, 0, 0, 30)
+    button.Position = UDim2.new(0, 0, 0, yPosition)
     button.BackgroundColor3 = Colors.ToggleOff
     button.Text = "  " .. name
     button.TextColor3 = Colors.TextDim
-    button.Parent = contentArea
+    button.Parent = togglesFrame
     
     button.MouseButton1Click:Connect(function()
         toggleStorage[toggleKey] = not toggleStorage[toggleKey]
@@ -170,84 +192,110 @@ local function createContentToggle(name, yPosition, toggleKey)
     return button
 end
 
--- Clear content area efficiently
-local function clearContentArea()
-    -- Batch destroy children (faster than individual loops)
-    local children = contentArea:GetChildren()
-    for i = #children, 1, -1 do
-        local child = children[i]
+-- Clear toggles
+local function clearToggles()
+    for _, child in pairs(togglesFrame:GetChildren()) do
         if child:IsA("TextButton") then
             child:Destroy()
         end
     end
 end
 
--- Pre-define section data (no table creation during runtime)
+-- Section Data
 local sectionData = {
     Main = {
-        subtitle = "Main features",
+        title = "MAIN",
+        subtitle = "Main Features",
         toggles = {
-            {name = "⚡ Speed Hack", key = "SpeedHack"},
-            {name = "🕊️ Fly Hack", key = "FlyHack"},
-            {name = "👁️ Player ESP", key = "ESP"},
+            {"⚡ Speed Hack", "SpeedHack"},
+            {"🕊️ Fly Hack", "FlyHack"},
+            {"👁️ Player ESP", "ESP"},
         }
     },
     Farm = {
-        subtitle = "Farming automation",
+        title = "FARM",
+        subtitle = "Farming Automation",
         toggles = {
-            {name = "🌾 Auto Farm", key = "AutoFarm"},
-            {name = "⚔️ Auto Attack", key = "AutoAttack"},
-            {name = "💎 Auto Collect", key = "AutoCollect"},
+            {"🌾 Auto Farm", "AutoFarm"},
+            {"⚔️ Auto Attack", "AutoAttack"},
+            {"💎 Auto Collect", "AutoCollect"},
+        }
+    },
+    Extra = {
+        title = "EXTRA",
+        subtitle = "Additional Features",
+        toggles = {
+            {"🔧 Feature 1", "Extra1"},
+            {"🔧 Feature 2", "Extra2"},
         }
     },
     PVP = {
-        subtitle = "Combat enhancements",
+        title = "PVP",
+        subtitle = "Combat Enhancements",
         toggles = {
-            {name = "🎯 Silent Aim", key = "SilentAim"},
-            {name = "🔫 Aimbot", key = "Aimbot"},
-            {name = "🛡️ Auto Block", key = "AutoBlock"},
+            {"🎯 Silent Aim", "SilentAim"},
+            {"🔫 Aimbot", "Aimbot"},
+            {"🛡️ Auto Block", "AutoBlock"},
+        }
+    },
+    Shop = {
+        title = "SHOP",
+        subtitle = "Shop Features",
+        toggles = {
+            {"🛍️ Auto Buy", "AutoBuy"},
+            {"💰 Cash Multiplier", "CashMult"},
+        }
+    },
+    Misc = {
+        title = "MISC",
+        subtitle = "Miscellaneous",
+        toggles = {
+            {"🎲 Random Feature", "Misc1"},
         }
     },
     Settings = {
-        subtitle = "Hub configuration",
+        title = "SETTINGS",
+        subtitle = "Hub Configuration",
         toggles = {
-            {name = "🔔 Notifications", key = "Notifications"},
-            {name = "🎨 Purple Theme", key = "PurpleTheme"},
+            {"🔔 Notifications", "Notifications"},
+            {"🎨 Purple Theme", "PurpleTheme"},
         }
     }
 }
 
--- Optimized section loader
+-- Load Section Content
 local function loadSectionContent(section)
-    clearContentArea()
-    contentLabel.Text = section
+    clearToggles()
     
     local data = sectionData[section]
     if data then
+        sectionTitle.Text = data.title
         subtitleLabel.Text = data.subtitle
-        local yPos = 0.30
+        
+        local yPos = 5
         for i, toggle in ipairs(data.toggles) do
-            createContentToggle(toggle.name, yPos + (i-1) * 0.08, toggle.key)
+            createContentToggle(toggle[1], yPos + (i-1) * 38, toggle[2])
         end
     else
-        subtitleLabel.Text = section .. " - Coming soon!"
+        sectionTitle.Text = section:upper()
+        subtitleLabel.Text = "Coming Soon!"
     end
 end
 
--- Create sidebar button template
-local sidebarButtonTemplate = Instance.new("TextButton")
-sidebarButtonTemplate.Size = UDim2.new(1, -20, 0, 32)
-sidebarButtonTemplate.Position = UDim2.new(0, 10, 0, 0)
-sidebarButtonTemplate.BackgroundColor3 = Colors.Button
-sidebarButtonTemplate.BackgroundTransparency = 0.5
-sidebarButtonTemplate.BorderSizePixel = 0
-sidebarButtonTemplate.TextColor3 = Colors.TextDim
-sidebarButtonTemplate.Font = Enum.Font.GothamMedium
-sidebarButtonTemplate.TextSize = 13
-sidebarButtonTemplate.TextXAlignment = Enum.TextXAlignment.Left
-sidebarButtonTemplate.AutoButtonColor = false
+-- Sidebar button template
+local sidebarBtnTemplate = Instance.new("TextButton")
+sidebarBtnTemplate.Size = UDim2.new(1, -20, 0, 32)
+sidebarBtnTemplate.Position = UDim2.new(0, 10, 0, 0)
+sidebarBtnTemplate.BackgroundColor3 = Colors.Button
+sidebarBtnTemplate.BackgroundTransparency = 0.5
+sidebarBtnTemplate.BorderSizePixel = 0
+sidebarBtnTemplate.TextColor3 = Colors.TextDim
+sidebarBtnTemplate.Font = Enum.Font.GothamMedium
+sidebarBtnTemplate.TextSize = 13
+sidebarBtnTemplate.TextXAlignment = Enum.TextXAlignment.Left
+sidebarBtnTemplate.AutoButtonColor = false
 
--- Create sidebar buttons using template
+-- Sidebar Sections
 local sidebarSections = {
     {name = "Main", icon = "🏠"},
     {name = "Farm", icon = "🌾"},
@@ -258,39 +306,43 @@ local sidebarSections = {
     {name = "Settings", icon = "⚙️"}
 }
 
+-- Create Sidebar Buttons
 for i, section in ipairs(sidebarSections) do
-    local button = sidebarButtonTemplate:Clone()
-    button.Position = UDim2.new(0, 10, 0, i * 38 - 25)
+    local button = sidebarBtnTemplate:Clone()
+    button.Position = UDim2.new(0, 10, 0, i * 38 - 20)
     button.Text = "  " .. section.icon .. "  " .. section.name
     button.Parent = sidebar
     
-    -- Selection indicator
-    local leftBorder = Instance.new("Frame")
-    leftBorder.Size = UDim2.new(0, 3, 1, 0)
-    leftBorder.BackgroundColor3 = Colors.Accent
-    leftBorder.BackgroundTransparency = 1
-    leftBorder.BorderSizePixel = 0
-    leftBorder.Parent = button
+    -- Purple accent line
+    local accentLine = Instance.new("Frame")
+    accentLine.Size = UDim2.new(0, 3, 1, 0)
+    accentLine.BackgroundColor3 = Colors.Accent
+    accentLine.BackgroundTransparency = 1
+    accentLine.BorderSizePixel = 0
+    accentLine.Parent = button
     
     button.MouseButton1Click:Connect(function()
+        -- Reset old selection
         if selectedButton then
             selectedButton.BackgroundTransparency = 0.5
             selectedButton.TextColor3 = Colors.TextDim
-            local oldBorder = selectedButton:FindFirstChildOfClass("Frame")
-            if oldBorder then
-                oldBorder.BackgroundTransparency = 1
+            local oldLine = selectedButton:FindFirstChildOfClass("Frame")
+            if oldLine then
+                oldLine.BackgroundTransparency = 1
             end
         end
         
+        -- Set new selection
         button.BackgroundTransparency = 0.2
         button.TextColor3 = Colors.Accent
-        leftBorder.BackgroundTransparency = 0
+        accentLine.BackgroundTransparency = 0
         selectedButton = button
         
+        -- Load content
         loadSectionContent(section.name)
     end)
     
-    -- Hover effects (lightweight)
+    -- Hover
     button.MouseEnter:Connect(function()
         if button ~= selectedButton then
             button.BackgroundTransparency = 0.3
@@ -303,24 +355,33 @@ for i, section in ipairs(sidebarSections) do
         end
     end)
     
-    -- Auto-select first
+    -- Auto-select Main on startup
     if i == 1 then
         button.BackgroundTransparency = 0.2
         button.TextColor3 = Colors.Accent
-        leftBorder.BackgroundTransparency = 0
+        accentLine.BackgroundTransparency = 0
         selectedButton = button
         loadSectionContent("Main")
     end
 end
 
--- Single keybind connection (no nested checks)
+-- KEYBIND FIX: Separate connection, check for RightControl specifically
 UserInputService.InputBegan:Connect(function(input, gameProcessed)
-    if not gameProcessed and input.KeyCode == Enum.KeyCode.RightControl then
+    -- Don't check gameProcessed, just check the key directly
+    if input.KeyCode == Enum.KeyCode.RightControl then
         mainFrame.Visible = not mainFrame.Visible
+        print("🔄 GUI " .. (mainFrame.Visible and "SHOWN" or "HIDDEN"))
     end
 end)
 
--- Performance metrics
-local loadTime = tick() - startTime
-print("✅ SairHub v2 Loaded in " .. string.format("%.3f", loadTime) .. "ms")
-print("📌 Press RIGHT CTRL to toggle GUI")
+-- Also add a backup keybind (Left Ctrl) in case Right Ctrl doesn't work
+UserInputService.InputBegan:Connect(function(input, gameProcessed)
+    if input.KeyCode == Enum.KeyCode.LeftControl then
+        mainFrame.Visible = not mainFrame.Visible
+        print("🔄 GUI " .. (mainFrame.Visible and "SHOWN" or "HIDDEN") .. " (Left Ctrl backup)")
+    end
+end)
+
+print("✅ SairHub v2 Loaded in " .. string.format("%.3f", tick() - startTime) .. "ms")
+print("📌 Press RIGHT CTRL or LEFT CTRL to toggle GUI")
+print("👤 Welcome, " .. player.Name)
