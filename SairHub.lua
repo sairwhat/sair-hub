@@ -1,4 +1,4 @@
--- SairHub v2 | Enhanced UI with Theme System + Settings
+-- SairHub v2 | Consolidated Opacity + Scrollable UI
 local startTime = tick()
 
 local Players = game:GetService("Players")
@@ -74,8 +74,7 @@ local Themes = {
 -- Current Settings
 local currentSettings = {
     theme = "Purple",
-    backgroundOpacity = 0.15,
-    sidebarOpacity = 0.0
+    globalOpacity = 0.15, -- Single opacity control for everything
 }
 
 local Colors = Themes[currentSettings.theme]
@@ -88,10 +87,10 @@ screenGui.Parent = playerGui
 
 -- Main Container
 local mainFrame = Instance.new("Frame")
-mainFrame.Size = UDim2.new(0, 600, 0, 420)
-mainFrame.Position = UDim2.new(0.5, -300, 0.5, -210)
+mainFrame.Size = UDim2.new(0, 620, 0, 440)
+mainFrame.Position = UDim2.new(0.5, -310, 0.5, -220)
 mainFrame.BackgroundColor3 = Colors.Background
-mainFrame.BackgroundTransparency = currentSettings.backgroundOpacity
+mainFrame.BackgroundTransparency = currentSettings.globalOpacity
 mainFrame.BorderSizePixel = 0
 mainFrame.Visible = true
 mainFrame.Active = true
@@ -107,49 +106,57 @@ uiStroke.Parent = mainFrame
 
 -- Corner Rounding
 local uiCorner = Instance.new("UICorner")
-uiCorner.CornerRadius = UDim.new(0, 8)
+uiCorner.CornerRadius = UDim.new(0, 10)
 uiCorner.Parent = mainFrame
 
 -- Top Bar
 local topBar = Instance.new("Frame")
-topBar.Size = UDim2.new(1, 0, 0, 35)
+topBar.Size = UDim2.new(1, 0, 0, 38)
 topBar.BackgroundColor3 = Colors.Sidebar
-topBar.BackgroundTransparency = currentSettings.sidebarOpacity
+topBar.BackgroundTransparency = 0
 topBar.BorderSizePixel = 0
 topBar.Parent = mainFrame
 
-local topCorner = Instance.new("UICorner")
-topCorner.CornerRadius = UDim.new(0, 8)
-topCorner.Parent = topBar
+local topGradient = Instance.new("UIGradient")
+topGradient.Color = ColorSequence.new({
+    ColorSequenceKeypoint.new(0, Color3.fromRGB(255, 255, 255)),
+    ColorSequenceKeypoint.new(1, Colors.Sidebar)
+})
+topGradient.Transparency = NumberSequence.new({
+    NumberSequenceKeypoint.new(0, 0.1),
+    NumberSequenceKeypoint.new(1, 0)
+})
+-- Just styling, keeping it subtle
+topGradient.Parent = topBar
 
--- Title with Icon
+-- Title
 local titleLabel = Instance.new("TextLabel")
-titleLabel.Size = UDim2.new(1, -40, 1, 0)
-titleLabel.Position = UDim2.new(0, 15, 0, 0)
+titleLabel.Size = UDim2.new(1, -50, 1, 0)
+titleLabel.Position = UDim2.new(0, 18, 0, 0)
 titleLabel.BackgroundTransparency = 1
 titleLabel.Text = "🔥 SairHub v2"
 titleLabel.TextColor3 = Colors.Accent
 titleLabel.Font = Enum.Font.GothamBold
-titleLabel.TextSize = 16
+titleLabel.TextSize = 17
 titleLabel.TextXAlignment = Enum.TextXAlignment.Left
 titleLabel.Parent = topBar
 
 -- Close Button
 local closeButton = Instance.new("TextButton")
-closeButton.Size = UDim2.new(0, 28, 0, 28)
-closeButton.Position = UDim2.new(1, -32, 0, 3.5)
+closeButton.Size = UDim2.new(0, 30, 0, 30)
+closeButton.Position = UDim2.new(1, -35, 0, 4)
 closeButton.BackgroundColor3 = Colors.Close
 closeButton.BackgroundTransparency = 0.6
 closeButton.BorderSizePixel = 0
 closeButton.Text = "✕"
 closeButton.TextColor3 = Colors.Text
 closeButton.Font = Enum.Font.GothamBold
-closeButton.TextSize = 16
+closeButton.TextSize = 15
 closeButton.AutoButtonColor = false
 closeButton.Parent = topBar
 
 local closeCorner = Instance.new("UICorner")
-closeCorner.CornerRadius = UDim.new(0, 6)
+closeCorner.CornerRadius = UDim.new(0, 8)
 closeCorner.Parent = closeButton
 
 closeButton.MouseEnter:Connect(function()
@@ -164,21 +171,17 @@ end)
 
 -- Sidebar
 local sidebar = Instance.new("Frame")
-sidebar.Size = UDim2.new(0, 160, 1, -35)
-sidebar.Position = UDim2.new(0, 0, 0, 35)
+sidebar.Size = UDim2.new(0, 170, 1, -38)
+sidebar.Position = UDim2.new(0, 0, 0, 38)
 sidebar.BackgroundColor3 = Colors.Sidebar
-sidebar.BackgroundTransparency = currentSettings.sidebarOpacity
+sidebar.BackgroundTransparency = 0
 sidebar.BorderSizePixel = 0
 sidebar.Parent = mainFrame
 
-local sidebarCorner = Instance.new("UICorner")
-sidebarCorner.CornerRadius = UDim.new(0, 8)
-sidebarCorner.Parent = sidebar
-
--- Sidebar Logo/Header
+-- Sidebar Header
 local sidebarHeader = Instance.new("TextLabel")
 sidebarHeader.Size = UDim2.new(1, 0, 0, 25)
-sidebarHeader.Position = UDim2.new(0, 0, 0, 8)
+sidebarHeader.Position = UDim2.new(0, 0, 0, 10)
 sidebarHeader.BackgroundTransparency = 1
 sidebarHeader.Text = "NAVIGATION"
 sidebarHeader.TextColor3 = Colors.TextDim
@@ -189,23 +192,42 @@ sidebarHeader.Parent = sidebar
 
 local navDivider = Instance.new("Frame")
 navDivider.Size = UDim2.new(1, -30, 0, 1)
-navDivider.Position = UDim2.new(0, 15, 0, 38)
+navDivider.Position = UDim2.new(0, 15, 0, 40)
 navDivider.BackgroundColor3 = Colors.Accent
 navDivider.BackgroundTransparency = 0.7
 navDivider.BorderSizePixel = 0
 navDivider.Parent = sidebar
 
--- Content Area
+-- Content Area with Scrolling
 local contentArea = Instance.new("Frame")
-contentArea.Size = UDim2.new(1, -160, 1, -35)
-contentArea.Position = UDim2.new(0, 160, 0, 35)
+contentArea.Size = UDim2.new(1, -170, 1, -38)
+contentArea.Position = UDim2.new(0, 170, 0, 38)
 contentArea.BackgroundTransparency = 1
 contentArea.ClipsDescendants = true
 contentArea.Parent = mainFrame
 
+-- Scrolling Frame for Content
+local scrollingFrame = Instance.new("ScrollingFrame")
+scrollingFrame.Size = UDim2.new(1, 0, 1, 0)
+scrollingFrame.Position = UDim2.new(0, 0, 0, 0)
+scrollingFrame.BackgroundTransparency = 1
+scrollingFrame.BorderSizePixel = 0
+scrollingFrame.ScrollBarThickness = 4
+scrollingFrame.ScrollBarImageColor3 = Colors.Accent
+scrollingFrame.ScrollBarImageTransparency = 0.5
+scrollingFrame.CanvasSize = UDim2.new(0, 0, 0, 400) -- Will be adjusted dynamically
+scrollingFrame.ScrollingDirection = Enum.ScrollingDirection.Y
+scrollingFrame.Parent = contentArea
+
+-- Content container inside scrolling frame
+local contentContainer = Instance.new("Frame")
+contentContainer.Size = UDim2.new(1, 0, 1, 0)
+contentContainer.BackgroundTransparency = 1
+contentContainer.Parent = scrollingFrame
+
 -- Section Title
 local sectionTitle = Instance.new("TextLabel")
-sectionTitle.Size = UDim2.new(1, -40, 0, 55)
+sectionTitle.Size = UDim2.new(1, -50, 0, 55)
 sectionTitle.Position = UDim2.new(0, 25, 0, 15)
 sectionTitle.BackgroundTransparency = 1
 sectionTitle.Text = "MAIN"
@@ -214,11 +236,11 @@ sectionTitle.Font = Enum.Font.GothamBlack
 sectionTitle.TextSize = 40
 sectionTitle.TextXAlignment = Enum.TextXAlignment.Left
 sectionTitle.TextTransparency = 0.1
-sectionTitle.Parent = contentArea
+sectionTitle.Parent = contentContainer
 
 -- Subtitle
 local subtitleLabel = Instance.new("TextLabel")
-subtitleLabel.Size = UDim2.new(1, -40, 0, 20)
+subtitleLabel.Size = UDim2.new(1, -50, 0, 20)
 subtitleLabel.Position = UDim2.new(0, 25, 0, 72)
 subtitleLabel.BackgroundTransparency = 1
 subtitleLabel.Text = "Main Features"
@@ -226,7 +248,7 @@ subtitleLabel.TextColor3 = Colors.TextDim
 subtitleLabel.Font = Enum.Font.GothamMedium
 subtitleLabel.TextSize = 13
 subtitleLabel.TextXAlignment = Enum.TextXAlignment.Left
-subtitleLabel.Parent = contentArea
+subtitleLabel.Parent = contentContainer
 
 -- Divider
 local divider = Instance.new("Frame")
@@ -235,22 +257,22 @@ divider.Position = UDim2.new(0, 25, 0, 100)
 divider.BackgroundColor3 = Colors.Accent
 divider.BackgroundTransparency = 0.7
 divider.BorderSizePixel = 0
-divider.Parent = contentArea
+divider.Parent = contentContainer
 
 -- Toggles Container
 local togglesFrame = Instance.new("Frame")
-togglesFrame.Size = UDim2.new(1, -50, 1, -110)
+togglesFrame.Size = UDim2.new(1, -50, 0, 0) -- Will be sized dynamically
 togglesFrame.Position = UDim2.new(0, 25, 0, 110)
 togglesFrame.BackgroundTransparency = 1
-togglesFrame.Parent = contentArea
+togglesFrame.Parent = contentContainer
 
--- Settings Container (special setup for settings page)
+-- Settings Container
 local settingsFrame = Instance.new("Frame")
-settingsFrame.Size = UDim2.new(1, -50, 1, -110)
+settingsFrame.Size = UDim2.new(1, -50, 0, 0)
 settingsFrame.Position = UDim2.new(0, 25, 0, 110)
 settingsFrame.BackgroundTransparency = 1
 settingsFrame.Visible = false
-settingsFrame.Parent = contentArea
+settingsFrame.Parent = contentContainer
 
 -- Toggle storage
 local toggleStorage = {}
@@ -276,7 +298,7 @@ local function createContentToggle(name, yPosition, toggleKey, parent)
     end
     
     local button = buttonTemplate:Clone()
-    button.Size = UDim2.new(1, 0, 0, 32)
+    button.Size = UDim2.new(1, 0, 0, 34)
     button.Position = UDim2.new(0, 0, 0, yPosition)
     button.BackgroundColor3 = Colors.ToggleOff
     button.Text = "  " .. name
@@ -305,7 +327,7 @@ end
 -- Create Dropdown (for settings)
 local function createDropdown(label, options, currentValue, yPosition, callback)
     local container = Instance.new("Frame")
-    container.Size = UDim2.new(1, 0, 0, 65)
+    container.Size = UDim2.new(1, 0, 0, 70)
     container.Position = UDim2.new(0, 0, 0, yPosition)
     container.BackgroundTransparency = 1
     container.Parent = settingsFrame
@@ -321,8 +343,8 @@ local function createDropdown(label, options, currentValue, yPosition, callback)
     labelText.Parent = container
     
     local dropdown = Instance.new("TextButton")
-    dropdown.Size = UDim2.new(1, 0, 0, 32)
-    dropdown.Position = UDim2.new(0, 0, 0, 27)
+    dropdown.Size = UDim2.new(1, 0, 0, 34)
+    dropdown.Position = UDim2.new(0, 0, 0, 28)
     dropdown.BackgroundColor3 = Colors.Button
     dropdown.BackgroundTransparency = 0.3
     dropdown.BorderSizePixel = 0
@@ -332,6 +354,7 @@ local function createDropdown(label, options, currentValue, yPosition, callback)
     dropdown.TextSize = 13
     dropdown.TextXAlignment = Enum.TextXAlignment.Left
     dropdown.AutoButtonColor = false
+    dropdown.ZIndex = 10
     dropdown.Parent = container
     
     local dropdownCorner = Instance.new("UICorner")
@@ -346,7 +369,7 @@ local function createDropdown(label, options, currentValue, yPosition, callback)
     optionsFrame.BorderSizePixel = 0
     optionsFrame.ClipsDescendants = true
     optionsFrame.Visible = false
-    optionsFrame.ZIndex = 10
+    optionsFrame.ZIndex = 11
     optionsFrame.Parent = container
     
     local optionsCorner = Instance.new("UICorner")
@@ -354,11 +377,10 @@ local function createDropdown(label, options, currentValue, yPosition, callback)
     optionsCorner.Parent = optionsFrame
     
     -- Add options
-    local optionButtons = {}
     for i, option in ipairs(options) do
         local optionBtn = Instance.new("TextButton")
-        optionBtn.Size = UDim2.new(1, 0, 0, 28)
-        optionBtn.Position = UDim2.new(0, 0, 0, (i-1) * 28)
+        optionBtn.Size = UDim2.new(1, 0, 0, 30)
+        optionBtn.Position = UDim2.new(0, 0, 0, (i-1) * 30)
         optionBtn.BackgroundColor3 = Colors.Button
         optionBtn.BackgroundTransparency = (option == currentValue) and 0.2 or 0.3
         optionBtn.BorderSizePixel = 0
@@ -368,7 +390,7 @@ local function createDropdown(label, options, currentValue, yPosition, callback)
         optionBtn.TextSize = 12
         optionBtn.TextXAlignment = Enum.TextXAlignment.Left
         optionBtn.AutoButtonColor = false
-        optionBtn.ZIndex = 10
+        optionBtn.ZIndex = 11
         optionBtn.Parent = optionsFrame
         
         optionBtn.MouseEnter:Connect(function()
@@ -389,12 +411,10 @@ local function createDropdown(label, options, currentValue, yPosition, callback)
                 callback(option)
             end
         end)
-        
-        table.insert(optionButtons, optionBtn)
     end
     
     dropdown.MouseButton1Click:Connect(function()
-        optionsFrame.Size = UDim2.new(1, 0, 0, #options * 28)
+        optionsFrame.Size = UDim2.new(1, 0, 0, #options * 30)
         optionsFrame.Visible = not optionsFrame.Visible
     end)
     
@@ -404,7 +424,7 @@ end
 -- Create Slider
 local function createSlider(label, min, max, currentValue, yPosition, callback)
     local container = Instance.new("Frame")
-    container.Size = UDim2.new(1, 0, 0, 65)
+    container.Size = UDim2.new(1, 0, 0, 70)
     container.Position = UDim2.new(0, 0, 0, yPosition)
     container.BackgroundTransparency = 1
     container.Parent = settingsFrame
@@ -412,7 +432,7 @@ local function createSlider(label, min, max, currentValue, yPosition, callback)
     local labelText = Instance.new("TextLabel")
     labelText.Size = UDim2.new(1, 0, 0, 22)
     labelText.BackgroundTransparency = 1
-    labelText.Text = label .. ": " .. string.format("%.2f", currentValue)
+    labelText.Text = label .. ": " .. string.format("%.0f%%", currentValue * 100)
     labelText.TextColor3 = Colors.TextDim
     labelText.Font = Enum.Font.GothamMedium
     labelText.TextSize = 12
@@ -432,7 +452,7 @@ local function createSlider(label, min, max, currentValue, yPosition, callback)
     sliderCorner.Parent = sliderBar
     
     local fill = Instance.new("Frame")
-    local percentage = (currentValue - min) / (max - min)
+    local percentage = math.clamp((currentValue - min) / (max - min), 0, 1)
     fill.Size = UDim2.new(percentage, 0, 1, 0)
     fill.BackgroundColor3 = Colors.Accent
     fill.BackgroundTransparency = 0.2
@@ -457,6 +477,16 @@ local function createSlider(label, min, max, currentValue, yPosition, callback)
     knobCorner.CornerRadius = UDim.new(1, 0)
     knobCorner.Parent = knob
     
+    -- Hover effect on knob
+    knob.MouseEnter:Connect(function()
+        knob.Size = UDim2.new(0, 22, 0, 22)
+        knob.Position = UDim2.new(percentage, -11, 0.5, -11)
+    end)
+    knob.MouseLeave:Connect(function()
+        knob.Size = UDim2.new(0, 18, 0, 18)
+        knob.Position = UDim2.new(percentage, -9, 0.5, -9)
+    end)
+    
     local dragging = false
     
     knob.MouseButton1Down:Connect(function()
@@ -480,7 +510,7 @@ local function createSlider(label, min, max, currentValue, yPosition, callback)
             
             fill.Size = UDim2.new(relativeX, 0, 1, 0)
             knob.Position = UDim2.new(relativeX, -9, 0.5, -9)
-            labelText.Text = label .. ": " .. string.format("%.2f", value)
+            labelText.Text = label .. ": " .. string.format("%.0f%%", value * 100)
             
             if callback then
                 callback(value)
@@ -496,6 +526,7 @@ local function updateUIColorScheme()
     Colors = Themes[currentSettings.theme]
     
     mainFrame.BackgroundColor3 = Colors.Background
+    mainFrame.BackgroundTransparency = currentSettings.globalOpacity
     uiStroke.Color = Colors.Accent
     topBar.BackgroundColor3 = Colors.Sidebar
     titleLabel.TextColor3 = Colors.Accent
@@ -504,6 +535,7 @@ local function updateUIColorScheme()
     divider.BackgroundColor3 = Colors.Accent
     sectionTitle.TextColor3 = Colors.Text
     subtitleLabel.TextColor3 = Colors.TextDim
+    scrollingFrame.ScrollBarImageColor3 = Colors.Accent
 end
 
 -- Clear toggles
@@ -528,6 +560,7 @@ local sectionData = {
             {"🕊️ Fly Hack", "FlyHack"},
             {"👁️ Player ESP", "ESP"},
             {"🎯 Teleport", "Teleport"},
+            {"💨 Fast Walk", "FastWalk"},
         }
     },
     Farm = {
@@ -538,6 +571,8 @@ local sectionData = {
             {"⚔️ Auto Attack", "AutoAttack"},
             {"💎 Auto Collect", "AutoCollect"},
             {"📦 Auto Loot", "AutoLoot"},
+            {"🏃 Auto Run", "AutoRun"},
+            {"🗺️ Auto Quest", "AutoQuest"},
         }
     },
     Extra = {
@@ -547,6 +582,7 @@ local sectionData = {
             {"🔧 Noclip", "Noclip"},
             {"🔧 Infinite Jump", "InfJump"},
             {"🔧 God Mode", "GodMode"},
+            {"🔧 Wall Hack", "WallHack"},
         }
     },
     PVP = {
@@ -557,6 +593,8 @@ local sectionData = {
             {"🔫 Aimbot", "Aimbot"},
             {"🛡️ Auto Block", "AutoBlock"},
             {"⚡ Quick Attack", "QuickAttack"},
+            {"💪 Anti Knockback", "AntiKB"},
+            {"🎲 Hitbox Expander", "HitboxExpand"},
         }
     },
     Shop = {
@@ -566,6 +604,7 @@ local sectionData = {
             {"🛍️ Auto Buy", "AutoBuy"},
             {"💰 Cash Multiplier", "CashMult"},
             {"💳 Free Items", "FreeItems"},
+            {"🏷️ Auto Sell", "AutoSell"},
         }
     },
     Misc = {
@@ -575,6 +614,7 @@ local sectionData = {
             {"🎲 Random TP", "RandomTP"},
             {"📸 Screenshot Mode", "ScreenshotMode"},
             {"🎮 Gamepad Support", "Gamepad"},
+            {"🌙 Night Mode", "NightMode"},
         }
     },
     Settings = {
@@ -602,26 +642,24 @@ local function loadSectionContent(section)
             createDropdown("🎨 Theme Preset", {"Purple", "Green", "Ocean", "Sunset", "Midnight"}, currentSettings.theme, 5, function(value)
                 currentSettings.theme = value
                 updateUIColorScheme()
-                loadSectionContent("Settings") -- Refresh settings page
+                loadSectionContent("Settings")
             end)
             
-            -- Background Opacity Slider
-            createSlider("🌑 Background Opacity", 0, 0.8, currentSettings.backgroundOpacity, 75, function(value)
-                currentSettings.backgroundOpacity = value
+            -- Global Opacity Slider
+            createSlider("🌑 Global Opacity", 0, 0.7, currentSettings.globalOpacity, 85, function(value)
+                currentSettings.globalOpacity = value
                 mainFrame.BackgroundTransparency = value
             end)
             
-            -- Sidebar Opacity Slider
-            createSlider("📂 Sidebar Opacity", 0, 0.5, currentSettings.sidebarOpacity, 145, function(value)
-                currentSettings.sidebarOpacity = value
-                sidebar.BackgroundTransparency = value
-                topBar.BackgroundTransparency = value
-            end)
+            -- Functional Toggles
+            createContentToggle("🔔 Enable Notifications", 165, "Notifications", settingsFrame)
+            createContentToggle("💾 Save Settings", 204, "SaveSettings", settingsFrame)
+            createContentToggle("🔁 Auto Load Config", 243, "AutoLoad", settingsFrame)
+            createContentToggle("🔊 UI Sounds", 282, "UISounds", settingsFrame)
             
-            -- Notification Toggle
-            createContentToggle("🔔 Enable Notifications", 220, "Notifications", settingsFrame)
-            createContentToggle("💾 Save Settings", 257, "SaveSettings", settingsFrame)
-            createContentToggle("🔁 Auto Load Config", 294, "AutoLoad", settingsFrame)
+            -- Set canvas size for scrolling
+            settingsFrame.Size = UDim2.new(1, -50, 0, 350)
+            scrollingFrame.CanvasSize = UDim2.new(0, 0, 0, 350)
             
         else
             -- Show regular toggles
@@ -629,19 +667,28 @@ local function loadSectionContent(section)
             settingsFrame.Visible = false
             
             local yPos = 5
+            local toggleCount = #data.toggles
             for i, toggle in ipairs(data.toggles) do
-                createContentToggle(toggle[1], yPos + (i-1) * 38, toggle[2])
+                createContentToggle(toggle[1], yPos + (i-1) * 40, toggle[2])
             end
+            
+            -- Adjust canvas size based on number of toggles
+            local totalHeight = yPos + toggleCount * 40 + 130 -- 130 for title + subtitle + divider + padding
+            togglesFrame.Size = UDim2.new(1, -50, 0, totalHeight)
+            scrollingFrame.CanvasSize = UDim2.new(0, 0, 0, math.max(totalHeight, 380)) -- Minimum canvas height
         end
     else
         sectionTitle.Text = section:upper()
         subtitleLabel.Text = "Coming Soon!"
     end
+    
+    -- Reset scroll position to top
+    scrollingFrame.CanvasPosition = Vector2.new(0, 0)
 end
 
 -- Sidebar button template
 local sidebarBtnTemplate = Instance.new("TextButton")
-sidebarBtnTemplate.Size = UDim2.new(1, -24, 0, 34)
+sidebarBtnTemplate.Size = UDim2.new(1, -24, 0, 36)
 sidebarBtnTemplate.Position = UDim2.new(0, 12, 0, 0)
 sidebarBtnTemplate.BackgroundColor3 = Colors.Button
 sidebarBtnTemplate.BackgroundTransparency = 0.5
@@ -670,11 +717,11 @@ local sidebarSections = {
 -- Create Sidebar Buttons
 for i, section in ipairs(sidebarSections) do
     local button = sidebarBtnTemplate:Clone()
-    button.Position = UDim2.new(0, 12, 0, i * 40 + 8)
+    button.Position = UDim2.new(0, 12, 0, i * 42 + 8)
     button.Text = "  " .. section.icon .. "  " .. section.name
     button.Parent = sidebar
     
-    -- Accent indicator (left line)
+    -- Accent indicator
     local accentLine = Instance.new("Frame")
     accentLine.Size = UDim2.new(0, 3, 0.6, 0)
     accentLine.Position = UDim2.new(0, 0, 0.2, 0)
@@ -732,13 +779,22 @@ local versionLabel = Instance.new("TextLabel")
 versionLabel.Size = UDim2.new(1, -24, 0, 20)
 versionLabel.Position = UDim2.new(0, 12, 1, -28)
 versionLabel.BackgroundTransparency = 1
-versionLabel.Text = "v2.0.0 | SairHub"
+versionLabel.Text = "v2.0.0 | Scrollable"
 versionLabel.TextColor3 = Colors.TextDim
 versionLabel.Font = Enum.Font.Gotham
 versionLabel.TextSize = 9
 versionLabel.TextXAlignment = Enum.TextXAlignment.Center
-versionLabel.TextTransparency = 0.4
+versionLabel.TextTransparency = 0.5
 versionLabel.Parent = sidebar
+
+-- Enable mouse wheel scrolling
+scrollingFrame.MouseWheelForward = function()
+    scrollingFrame.CanvasPosition = Vector2.new(0, math.max(0, scrollingFrame.CanvasPosition.Y - 30))
+end
+scrollingFrame.MouseWheelBackward = function()
+    local maxScroll = scrollingFrame.CanvasSize.Y.Offset - scrollingFrame.AbsoluteSize.Y
+    scrollingFrame.CanvasPosition = Vector2.new(0, math.min(maxScroll, scrollingFrame.CanvasPosition.Y + 30))
+end
 
 -- KEYBIND: Right Control
 UserInputService.InputBegan:Connect(function(input, gameProcessed)
@@ -754,7 +810,32 @@ UserInputService.InputBegan:Connect(function(input, gameProcessed)
     end
 end)
 
-print("✅ SairHub v2 Enhanced Loaded in " .. string.format("%.3f", tick() - startTime) .. "ms")
-print("🎨 Theme System Active | 📌 Press RIGHT CTRL to toggle")
-print("👤 Welcome, " .. player.Name .. "!")
+-- Make UI draggable
+local dragging = false
+local dragInput, dragStart, startPos
+
+topBar.InputBegan:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.MouseButton1 then
+        dragging = true
+        dragStart = input.Position
+        startPos = mainFrame.Position
+    end
+end)
+
+topBar.InputEnded:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.MouseButton1 then
+        dragging = false
+    end
+end)
+
+UserInputService.InputChanged:Connect(function(input)
+    if dragging and input.UserInputType == Enum.UserInputType.MouseMovement then
+        local delta = input.Position - dragStart
+        mainFrame.Position = UDim2.new(startPos.X.Scale, startPos.X.Offset + delta.X, startPos.Y.Scale, startPos.Y.Offset + delta.Y)
+    end
+end)
+
+print("✅ SairHub v2 Scrollable Loaded in " .. string.format("%.3f", tick() - startTime) .. "ms")
+print("🎨 Theme System Active | 📜 Scrolling Enabled | 🖱️ Draggable UI")
+print("📌 Press RIGHT CTRL to toggle | 👤 Welcome, " .. player.Name .. "!")
 print("💡 Go to Settings to customize your theme!")
