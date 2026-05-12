@@ -411,10 +411,22 @@ local function loadSection(name)
 
         subtitleLabel.Text = "Hub Configuration"
 
-        -- Theme cycle button (no dropdown, just one click)
+        -- Theme label
+        local themeLabel = Instance.new("TextLabel")
+        themeLabel.Size = UDim2.new(1,0,0,20)
+        themeLabel.Position = UDim2.new(0,0,0,5)
+        themeLabel.BackgroundTransparency = 1
+        themeLabel.Text = "SELECT THEME"
+        themeLabel.TextColor3 = Colors.TextDim
+        themeLabel.Font = Enum.Font.GothamMedium
+        themeLabel.TextSize = 12
+        themeLabel.TextXAlignment = Enum.TextXAlignment.Left
+        themeLabel.Parent = settingsFrame
+
+        -- Theme cycle button
         local themeButton = Instance.new("TextButton")
         themeButton.Size = UDim2.new(1,0,0,34)
-        themeButton.Position = UDim2.new(0,0,0,10)
+        themeButton.Position = UDim2.new(0,0,0,28)
         themeButton.BackgroundColor3 = Colors.Button
         themeButton.BackgroundTransparency = 0.2
         themeButton.BorderSizePixel = 0
@@ -430,14 +442,14 @@ local function loadSection(name)
         local themeIndex = table.find(themeOptions, currentSettings.theme) or 1
 
         themeButton.MouseButton1Click:Connect(function()
-            themeIndex = themeIndex % #themeOptions + 1  -- cycle to next
+            themeIndex = themeIndex % #themeOptions + 1
             local newTheme = themeOptions[themeIndex]
             currentSettings.theme = newTheme
             themeButton.Text = "Theme: " .. newTheme
             updateUI()
         end)
 
-        -- Re-style on theme update (keep button colors reactive)
+        -- Re-style on theme update
         local originalUpdateUI = updateUI
         updateUI = function()
             originalUpdateUI()
@@ -445,24 +457,28 @@ local function loadSection(name)
                 themeButton.BackgroundColor3 = Colors.Button
                 themeButton.TextColor3 = Colors.Text
             end
+            if themeLabel then
+                themeLabel.TextColor3 = Colors.TextDim
+            end
         end
 
+        -- Background Opacity (moved closer - y=80 instead of 90)
         createSlider(
             "🌑 Background Opacity",
             0,
             1,
             currentSettings.globalOpacity,
-            90,
+            80,
             function(value)
                 currentSettings.globalOpacity = value
                 updateUI()
             end
         )
 
-        -- Replaced Notifications with FPS Boost
-        createToggle("🚀 FPS Boost", 170, "fpsboost", settingsFrame)
-        createToggle("💾 Save Settings", 210, "save", settingsFrame)
-        createToggle("🔁 Auto Load Config", 250, "autoload", settingsFrame)
+        -- Toggles (adjusted positions)
+        createToggle("🚀 FPS Boost", 140, "fpsboost", settingsFrame)
+        createToggle("💾 Save Settings", 180, "save", settingsFrame)
+        createToggle("🔁 Auto Load Config", 220, "autoload", settingsFrame)
 
     else
 
@@ -554,7 +570,7 @@ local versionLabel = Instance.new("TextLabel")
 versionLabel.Size = UDim2.new(1,-24,0,20)
 versionLabel.Position = UDim2.new(0,12,1,-28)
 versionLabel.BackgroundTransparency = 1
-versionLabel.Text = "v2.0.1 | Tweaked"
+versionLabel.Text = "v2.0.2 | Position Fixed"
 versionLabel.TextColor3 = Colors.TextDim
 versionLabel.Font = Enum.Font.Gotham
 versionLabel.TextSize = 9
