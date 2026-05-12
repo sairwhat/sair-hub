@@ -23,7 +23,10 @@ local Themes = {
         ToggleOn = Color3.fromRGB(80, 250, 123),
         ToggleOff = Color3.fromRGB(40, 38, 56),
         Close = Color3.fromRGB(255, 85, 85),
-        ToggleOnText = Color3.fromRGB(0,0,0)
+        ToggleOnText = Color3.fromRGB(0,0,0),
+        CardBg = Color3.fromRGB(35, 33, 50),
+        InputBg = Color3.fromRGB(45, 43, 60),
+        Divider = Color3.fromRGB(189, 147, 249)
     },
 
     Green = {
@@ -36,7 +39,10 @@ local Themes = {
         ToggleOn = Color3.fromRGB(80, 250, 123),
         ToggleOff = Color3.fromRGB(35, 50, 35),
         Close = Color3.fromRGB(255, 85, 85),
-        ToggleOnText = Color3.fromRGB(0,0,0)
+        ToggleOnText = Color3.fromRGB(0,0,0),
+        CardBg = Color3.fromRGB(28, 42, 28),
+        InputBg = Color3.fromRGB(38, 52, 38),
+        Divider = Color3.fromRGB(80, 250, 123)
     },
 
     Ocean = {
@@ -49,7 +55,10 @@ local Themes = {
         ToggleOn = Color3.fromRGB(42, 157, 143),
         ToggleOff = Color3.fromRGB(22, 42, 63),
         Close = Color3.fromRGB(255, 85, 85),
-        ToggleOnText = Color3.fromRGB(0,0,0)
+        ToggleOnText = Color3.fromRGB(0,0,0),
+        CardBg = Color3.fromRGB(20, 38, 55),
+        InputBg = Color3.fromRGB(28, 46, 65),
+        Divider = Color3.fromRGB(33, 158, 188)
     },
 
     Sunset = {
@@ -62,7 +71,10 @@ local Themes = {
         ToggleOn = Color3.fromRGB(255, 180, 50),
         ToggleOff = Color3.fromRGB(55, 38, 38),
         Close = Color3.fromRGB(255, 85, 85),
-        ToggleOnText = Color3.fromRGB(0,0,0)
+        ToggleOnText = Color3.fromRGB(0,0,0),
+        CardBg = Color3.fromRGB(58, 40, 40),
+        InputBg = Color3.fromRGB(65, 48, 48),
+        Divider = Color3.fromRGB(255, 140, 0)
     },
 
     Midnight = {
@@ -75,7 +87,10 @@ local Themes = {
         ToggleOn = Color3.fromRGB(80, 200, 120),
         ToggleOff = Color3.fromRGB(20, 20, 40),
         Close = Color3.fromRGB(255, 85, 85),
-        ToggleOnText = Color3.fromRGB(0,0,0)
+        ToggleOnText = Color3.fromRGB(0,0,0),
+        CardBg = Color3.fromRGB(18, 18, 38),
+        InputBg = Color3.fromRGB(25, 25, 45),
+        Divider = Color3.fromRGB(98, 114, 230)
     }
 }
 
@@ -352,6 +367,27 @@ local function createSlider(label,min,max,current,y,callback)
     end)
 end
 
+-- CREATE CARD
+local function createCard(y, height)
+    local card = Instance.new("Frame")
+    card.Size = UDim2.new(1, 0, 0, height)
+    card.Position = UDim2.new(0, 0, 0, y)
+    card.BackgroundColor3 = Colors.CardBg
+    card.BackgroundTransparency = 0.3
+    card.BorderSizePixel = 0
+    card.Parent = settingsFrame
+    
+    Instance.new("UICorner", card).CornerRadius = UDim.new(0, 8)
+    
+    local stroke = Instance.new("UIStroke")
+    stroke.Color = Colors.Accent
+    stroke.Thickness = 1
+    stroke.Transparency = 0.6
+    stroke.Parent = card
+    
+    return card
+end
+
 -- UPDATE UI
 local function updateUI()
 
@@ -409,76 +445,182 @@ local function loadSection(name)
 
     if name == "Settings" then
 
-        subtitleLabel.Text = "Hub Configuration"
+        subtitleLabel.Text = "⚙️ Hub Configuration"
+
+        -- ───── APPEARANCE CARD ─────
+        local appearanceCard = createCard(0, 150)
+        
+        local cardTitle1 = Instance.new("TextLabel")
+        cardTitle1.Size = UDim2.new(1, -20, 0, 25)
+        cardTitle1.Position = UDim2.new(0, 10, 0, 8)
+        cardTitle1.BackgroundTransparency = 1
+        cardTitle1.Text = "🎨 APPEARANCE"
+        cardTitle1.TextColor3 = Colors.Accent
+        cardTitle1.Font = Enum.Font.GothamBold
+        cardTitle1.TextSize = 13
+        cardTitle1.TextXAlignment = Enum.TextXAlignment.Left
+        cardTitle1.Parent = appearanceCard
+        
+        local cardDivider1 = Instance.new("Frame")
+        cardDivider1.Size = UDim2.new(1, -20, 0, 1)
+        cardDivider1.Position = UDim2.new(0, 10, 0, 35)
+        cardDivider1.BackgroundColor3 = Colors.Accent
+        cardDivider1.BackgroundTransparency = 0.7
+        cardDivider1.BorderSizePixel = 0
+        cardDivider1.Parent = appearanceCard
 
         -- Theme label
         local themeLabel = Instance.new("TextLabel")
-        themeLabel.Size = UDim2.new(1,0,0,20)
-        themeLabel.Position = UDim2.new(0,0,0,5)
+        themeLabel.Size = UDim2.new(0, 120, 0, 20)
+        themeLabel.Position = UDim2.new(0, 15, 0, 45)
         themeLabel.BackgroundTransparency = 1
         themeLabel.Text = "SELECT THEME"
         themeLabel.TextColor3 = Colors.TextDim
         themeLabel.Font = Enum.Font.GothamMedium
-        themeLabel.TextSize = 12
+        themeLabel.TextSize = 11
         themeLabel.TextXAlignment = Enum.TextXAlignment.Left
-        themeLabel.Parent = settingsFrame
+        themeLabel.Parent = appearanceCard
 
         -- Theme cycle button
         local themeButton = Instance.new("TextButton")
-        themeButton.Size = UDim2.new(1,0,0,34)
-        themeButton.Position = UDim2.new(0,0,0,28)
-        themeButton.BackgroundColor3 = Colors.Button
-        themeButton.BackgroundTransparency = 0.2
+        themeButton.Size = UDim2.new(1, -30, 0, 34)
+        themeButton.Position = UDim2.new(0, 15, 0, 68)
+        themeButton.BackgroundColor3 = Colors.InputBg
+        themeButton.BackgroundTransparency = 0.3
         themeButton.BorderSizePixel = 0
-        themeButton.Text = "Theme: " .. currentSettings.theme
+        themeButton.Text = "  🟣 " .. currentSettings.theme
         themeButton.TextColor3 = Colors.Text
         themeButton.Font = Enum.Font.GothamMedium
         themeButton.TextSize = 13
         themeButton.TextXAlignment = Enum.TextXAlignment.Left
-        themeButton.Parent = settingsFrame
-        Instance.new("UICorner", themeButton).CornerRadius = UDim.new(0,6)
+        themeButton.Parent = appearanceCard
+        Instance.new("UICorner", themeButton).CornerRadius = UDim.new(0, 6)
 
-        local themeOptions = {"Purple","Green","Ocean","Sunset","Midnight"}
+        local themeOptions = {"Purple", "Green", "Ocean", "Sunset", "Midnight"}
+        local themeEmojis = {"🟣", "🟢", "🔵", "🟠", "🌙"}
         local themeIndex = table.find(themeOptions, currentSettings.theme) or 1
 
         themeButton.MouseButton1Click:Connect(function()
             themeIndex = themeIndex % #themeOptions + 1
             local newTheme = themeOptions[themeIndex]
             currentSettings.theme = newTheme
-            themeButton.Text = "Theme: " .. newTheme
+            themeButton.Text = "  " .. themeEmojis[themeIndex] .. " " .. newTheme
             updateUI()
         end)
 
-        -- Re-style on theme update
-        local originalUpdateUI = updateUI
-        updateUI = function()
-            originalUpdateUI()
-            if themeButton then
-                themeButton.BackgroundColor3 = Colors.Button
-                themeButton.TextColor3 = Colors.Text
-            end
-            if themeLabel then
-                themeLabel.TextColor3 = Colors.TextDim
-            end
-        end
+        -- Background Opacity in same card
+        local opacityLabel = Instance.new("TextLabel")
+        opacityLabel.Size = UDim2.new(1, -30, 0, 20)
+        opacityLabel.Position = UDim2.new(0, 15, 0, 110)
+        opacityLabel.BackgroundTransparency = 1
+        opacityLabel.Text = "🌑 Background: " .. math.floor(currentSettings.globalOpacity * 100) .. "%"
+        opacityLabel.TextColor3 = Colors.TextDim
+        opacityLabel.Font = Enum.Font.GothamMedium
+        opacityLabel.TextSize = 11
+        opacityLabel.TextXAlignment = Enum.TextXAlignment.Left
+        opacityLabel.Parent = appearanceCard
 
-        -- Background Opacity (moved closer - y=80 instead of 90)
-        createSlider(
-            "🌑 Background Opacity",
-            0,
-            1,
-            currentSettings.globalOpacity,
-            80,
-            function(value)
-                currentSettings.globalOpacity = value
+        local opacitySlider = Instance.new("Frame")
+        opacitySlider.Size = UDim2.new(1, -30, 0, 8)
+        opacitySlider.Position = UDim2.new(0, 15, 0, 135)
+        opacitySlider.BackgroundColor3 = Colors.Button
+        opacitySlider.BorderSizePixel = 0
+        opacitySlider.Parent = appearanceCard
+        Instance.new("UICorner", opacitySlider).CornerRadius = UDim.new(1, 0)
+
+        local opacityFill = Instance.new("Frame")
+        opacityFill.Size = UDim2.new(currentSettings.globalOpacity, 0, 1, 0)
+        opacityFill.BackgroundColor3 = Colors.Accent
+        opacityFill.BorderSizePixel = 0
+        opacityFill.Parent = opacitySlider
+        Instance.new("UICorner", opacityFill).CornerRadius = UDim.new(1, 0)
+
+        local draggingOpacity = false
+
+        opacitySlider.InputBegan:Connect(function(input)
+            if input.UserInputType == Enum.UserInputType.MouseButton1 then
+                draggingOpacity = true
+            end
+        end)
+
+        UserInputService.InputEnded:Connect(function(input)
+            if input.UserInputType == Enum.UserInputType.MouseButton1 then
+                draggingOpacity = false
+            end
+        end)
+
+        UserInputService.InputChanged:Connect(function(input)
+            if draggingOpacity and input.UserInputType == Enum.UserInputType.MouseMovement then
+                local percent = math.clamp(
+                    (input.Position.X - opacitySlider.AbsolutePosition.X) / opacitySlider.AbsoluteSize.X,
+                    0, 1
+                )
+                opacityFill.Size = UDim2.new(percent, 0, 1, 0)
+                opacityLabel.Text = "🌑 Background: " .. math.floor(percent * 100) .. "%"
+                currentSettings.globalOpacity = percent
                 updateUI()
             end
-        )
+        end)
 
-        -- Toggles (adjusted positions)
-        createToggle("🚀 FPS Boost", 140, "fpsboost", settingsFrame)
-        createToggle("💾 Save Settings", 180, "save", settingsFrame)
-        createToggle("🔁 Auto Load Config", 220, "autoload", settingsFrame)
+        -- ───── FEATURES CARD ─────
+        local featuresCard = createCard(165, 150)
+        
+        local cardTitle2 = Instance.new("TextLabel")
+        cardTitle2.Size = UDim2.new(1, -20, 0, 25)
+        cardTitle2.Position = UDim2.new(0, 10, 0, 8)
+        cardTitle2.BackgroundTransparency = 1
+        cardTitle2.Text = "⚡ FEATURES"
+        cardTitle2.TextColor3 = Colors.Accent
+        cardTitle2.Font = Enum.Font.GothamBold
+        cardTitle2.TextSize = 13
+        cardTitle2.TextXAlignment = Enum.TextXAlignment.Left
+        cardTitle2.Parent = featuresCard
+        
+        local cardDivider2 = Instance.new("Frame")
+        cardDivider2.Size = UDim2.new(1, -20, 0, 1)
+        cardDivider2.Position = UDim2.new(0, 10, 0, 35)
+        cardDivider2.BackgroundColor3 = Colors.Accent
+        cardDivider2.BackgroundTransparency = 0.7
+        cardDivider2.BorderSizePixel = 0
+        cardDivider2.Parent = featuresCard
+
+        createToggle("🚀 FPS Boost", 45, "fpsboost", featuresCard)
+        createToggle("💾 Save Settings", 85, "save", featuresCard)
+        createToggle("🔁 Auto Load Config", 125, "autoload", featuresCard)
+
+        -- ───── INFO CARD ─────
+        local infoCard = createCard(330, 100)
+        
+        local cardTitle3 = Instance.new("TextLabel")
+        cardTitle3.Size = UDim2.new(1, -20, 0, 25)
+        cardTitle3.Position = UDim2.new(0, 10, 0, 8)
+        cardTitle3.BackgroundTransparency = 1
+        cardTitle3.Text = "ℹ️ INFORMATION"
+        cardTitle3.TextColor3 = Colors.Accent
+        cardTitle3.Font = Enum.Font.GothamBold
+        cardTitle3.TextSize = 13
+        cardTitle3.TextXAlignment = Enum.TextXAlignment.Left
+        cardTitle3.Parent = infoCard
+        
+        local cardDivider3 = Instance.new("Frame")
+        cardDivider3.Size = UDim2.new(1, -20, 0, 1)
+        cardDivider3.Position = UDim2.new(0, 10, 0, 35)
+        cardDivider3.BackgroundColor3 = Colors.Accent
+        cardDivider3.BackgroundTransparency = 0.7
+        cardDivider3.BorderSizePixel = 0
+        cardDivider3.Parent = infoCard
+
+        local infoText = Instance.new("TextLabel")
+        infoText.Size = UDim2.new(1, -20, 0, 40)
+        infoText.Position = UDim2.new(0, 10, 0, 45)
+        infoText.BackgroundTransparency = 1
+        infoText.Text = "Version: v2.1.0\nMade with 💜 for Blox Fruits"
+        infoText.TextColor3 = Colors.TextDim
+        infoText.Font = Enum.Font.Gotham
+        infoText.TextSize = 11
+        infoText.TextXAlignment = Enum.TextXAlignment.Left
+        infoText.TextWrapped = true
+        infoText.Parent = infoCard
 
     else
 
@@ -498,15 +640,15 @@ local function loadSection(name)
     end
 end
 
--- SIDEBAR
+-- SIDEBAR WITH ICONS
 local sections = {
-    "Main",
-    "Farm",
-    "Extra",
-    "PVP",
-    "Shop",
-    "Misc",
-    "Settings"
+    {name = "Main", icon = "🏠"},
+    {name = "Farm", icon = "🌾"},
+    {name = "Extra", icon = "➕"},
+    {name = "PVP", icon = "⚔️"},
+    {name = "Shop", icon = "🛒"},
+    {name = "Misc", icon = "📦"},
+    {name = "Settings", icon = "⚙️"}
 }
 
 for i,section in ipairs(sections) do
@@ -517,7 +659,7 @@ for i,section in ipairs(sections) do
     button.BackgroundColor3 = Colors.Button
     button.BackgroundTransparency = 0.25
     button.BorderSizePixel = 0
-    button.Text = "  "..section
+    button.Text = "  "..section.icon.."  "..section.name
     button.TextColor3 = Colors.TextDim
     button.Font = Enum.Font.GothamMedium
     button.TextSize = 12
@@ -554,14 +696,14 @@ for i,section in ipairs(sections) do
         button.BackgroundColor3 = Colors.Accent
         button.TextColor3 = Colors.Text
 
-        loadSection(section)
+        loadSection(section.name)
     end)
 
     if i == 1 then
         selectedButton = button
         button.BackgroundColor3 = Colors.Accent
         button.TextColor3 = Colors.Text
-        loadSection(section)
+        loadSection(section.name)
     end
 end
 
@@ -570,7 +712,7 @@ local versionLabel = Instance.new("TextLabel")
 versionLabel.Size = UDim2.new(1,-24,0,20)
 versionLabel.Position = UDim2.new(0,12,1,-28)
 versionLabel.BackgroundTransparency = 1
-versionLabel.Text = "v2.0.2 | Position Fixed"
+versionLabel.Text = "v2.1.0 | Extravagant"
 versionLabel.TextColor3 = Colors.TextDim
 versionLabel.Font = Enum.Font.Gotham
 versionLabel.TextSize = 9
