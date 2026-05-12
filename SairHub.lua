@@ -1,4 +1,4 @@
--- SairHub v2 | Modern UI + Dropdown Themes + Unified Opacity
+-- SairHub v2 | Final Clean Build
 local startTime = tick()
 
 local Players = game:GetService("Players")
@@ -7,20 +7,18 @@ local UserInputService = game:GetService("UserInputService")
 local player = Players.LocalPlayer
 local playerGui = player:WaitForChild("PlayerGui")
 
--- Remove old UI
 pcall(function()
     playerGui:FindFirstChild("SairHub"):Destroy()
 end)
 
 -- THEMES
 local Themes = {
-
     Purple = {
         Background = Color3.fromRGB(25,23,36),
         Sidebar = Color3.fromRGB(30,28,46),
         Accent = Color3.fromRGB(189,147,249),
         Text = Color3.fromRGB(248,248,242),
-        TextDim = Color3.fromRGB(180,175,210),
+        TextDim = Color3.fromRGB(170,165,200),
         Button = Color3.fromRGB(40,38,56),
         ToggleOn = Color3.fromRGB(80,250,123),
         ToggleOff = Color3.fromRGB(40,38,56),
@@ -33,7 +31,7 @@ local Themes = {
         Sidebar = Color3.fromRGB(25,38,25),
         Accent = Color3.fromRGB(80,250,123),
         Text = Color3.fromRGB(248,248,242),
-        TextDim = Color3.fromRGB(170,210,170),
+        TextDim = Color3.fromRGB(160,200,160),
         Button = Color3.fromRGB(35,50,35),
         ToggleOn = Color3.fromRGB(80,250,123),
         ToggleOff = Color3.fromRGB(35,50,35),
@@ -133,7 +131,7 @@ title.TextSize = 17
 title.TextXAlignment = Enum.TextXAlignment.Left
 title.Parent = topBar
 
--- CLOSE BUTTON
+-- CLOSE
 local close = Instance.new("TextButton")
 close.Size = UDim2.new(0,30,0,30)
 close.Position = UDim2.new(1,-35,0,4)
@@ -143,7 +141,6 @@ close.Text = "✕"
 close.TextColor3 = Colors.Text
 close.Font = Enum.Font.GothamBold
 close.TextSize = 14
-close.BorderSizePixel = 0
 close.Parent = topBar
 
 Instance.new("UICorner", close).CornerRadius = UDim.new(0,8)
@@ -162,25 +159,25 @@ sidebar.BorderSizePixel = 0
 sidebar.Parent = mainFrame
 
 -- CONTENT
-local contentArea = Instance.new("Frame")
-contentArea.Size = UDim2.new(1,-170,1,-38)
-contentArea.Position = UDim2.new(0,170,0,38)
-contentArea.BackgroundTransparency = 1
-contentArea.Parent = mainFrame
+local content = Instance.new("Frame")
+content.Size = UDim2.new(1,-170,1,-38)
+content.Position = UDim2.new(0,170,0,38)
+content.BackgroundTransparency = 1
+content.Parent = mainFrame
 
-local scrollingFrame = Instance.new("ScrollingFrame")
-scrollingFrame.Size = UDim2.new(1,0,1,0)
-scrollingFrame.BackgroundTransparency = 1
-scrollingFrame.BorderSizePixel = 0
-scrollingFrame.ScrollBarThickness = 4
-scrollingFrame.ScrollBarImageColor3 = Colors.Accent
-scrollingFrame.CanvasSize = UDim2.new(0,0,0,700)
-scrollingFrame.Parent = contentArea
+local scroll = Instance.new("ScrollingFrame")
+scroll.Size = UDim2.new(1,0,1,0)
+scroll.BackgroundTransparency = 1
+scroll.BorderSizePixel = 0
+scroll.ScrollBarThickness = 4
+scroll.ScrollBarImageColor3 = Colors.Accent
+scroll.CanvasSize = UDim2.new(0,0,0,800)
+scroll.Parent = content
 
-local contentContainer = Instance.new("Frame")
-contentContainer.Size = UDim2.new(1,0,1,0)
-contentContainer.BackgroundTransparency = 1
-contentContainer.Parent = scrollingFrame
+local container = Instance.new("Frame")
+container.Size = UDim2.new(1,0,1,0)
+container.BackgroundTransparency = 1
+container.Parent = scroll
 
 local sectionTitle = Instance.new("TextLabel")
 sectionTitle.Size = UDim2.new(1,-50,0,50)
@@ -191,7 +188,7 @@ sectionTitle.TextColor3 = Colors.Text
 sectionTitle.Font = Enum.Font.GothamBlack
 sectionTitle.TextSize = 38
 sectionTitle.TextXAlignment = Enum.TextXAlignment.Left
-sectionTitle.Parent = contentContainer
+sectionTitle.Parent = container
 
 local subtitle = Instance.new("TextLabel")
 subtitle.Size = UDim2.new(1,-50,0,20)
@@ -202,33 +199,32 @@ subtitle.TextColor3 = Colors.TextDim
 subtitle.Font = Enum.Font.Gotham
 subtitle.TextSize = 13
 subtitle.TextXAlignment = Enum.TextXAlignment.Left
-subtitle.Parent = contentContainer
+subtitle.Parent = container
 
 local divider = Instance.new("Frame")
 divider.Size = UDim2.new(1,-50,0,1)
 divider.Position = UDim2.new(0,25,0,95)
 divider.BackgroundColor3 = Colors.Accent
 divider.BackgroundTransparency = 0.5
-divider.BorderSizePixel = 0
-divider.Parent = contentContainer
+divider.Parent = container
 
 local togglesFrame = Instance.new("Frame")
 togglesFrame.Size = UDim2.new(1,-50,0,500)
 togglesFrame.Position = UDim2.new(0,25,0,110)
 togglesFrame.BackgroundTransparency = 1
-togglesFrame.Parent = contentContainer
+togglesFrame.Parent = container
 
 local settingsFrame = Instance.new("Frame")
 settingsFrame.Size = UDim2.new(1,-50,0,500)
 settingsFrame.Position = UDim2.new(0,25,0,110)
 settingsFrame.BackgroundTransparency = 1
 settingsFrame.Visible = false
-settingsFrame.Parent = contentContainer
+settingsFrame.Parent = container
 
 local toggleStorage = {}
 local selectedButton
 
--- UPDATE UI
+-- UI UPDATE
 local sidebarButtons = {}
 
 local function updateUI()
@@ -245,20 +241,18 @@ local function updateUI()
     sidebar.BackgroundTransparency = 1 - currentSettings.globalOpacity
 
     title.TextColor3 = Colors.Accent
-    sectionTitle.TextColor3 = Colors.Text
-    subtitle.TextColor3 = Colors.TextDim
     divider.BackgroundColor3 = Colors.Accent
     stroke.Color = Colors.Accent
 
-    scrollingFrame.ScrollBarImageColor3 = Colors.Accent
+    scroll.ScrollBarImageColor3 = Colors.Accent
 
-    for _,btn in pairs(sidebarButtons) do
-        btn.BackgroundColor3 = Colors.Button
+    for _,b in pairs(sidebarButtons) do
+        b.BackgroundColor3 = Colors.Button
 
-        if btn == selectedButton then
-            btn.TextColor3 = Colors.Accent
+        if b == selectedButton then
+            b.TextColor3 = Colors.Accent
         else
-            btn.TextColor3 = Colors.TextDim
+            b.TextColor3 = Colors.TextDim
         end
     end
 end
@@ -268,405 +262,257 @@ local function createToggle(name,y,key,parent)
 
     toggleStorage[key] = toggleStorage[key] or false
 
-    local button = Instance.new("TextButton")
-    button.Size = UDim2.new(1,0,0,34)
-    button.Position = UDim2.new(0,0,0,y)
-    button.BackgroundColor3 = Colors.ToggleOff
-    button.BackgroundTransparency = 0.2
-    button.Text = "  "..name
-    button.TextColor3 = Colors.TextDim
-    button.Font = Enum.Font.GothamMedium
-    button.TextSize = 13
-    button.TextXAlignment = Enum.TextXAlignment.Left
-    button.BorderSizePixel = 0
-    button.Parent = parent
+    local btn = Instance.new("TextButton")
+    btn.Size = UDim2.new(1,0,0,34)
+    btn.Position = UDim2.new(0,0,0,y)
+    btn.BackgroundColor3 = Colors.ToggleOff
+    btn.Text = "  "..name
+    btn.TextColor3 = Colors.TextDim
+    btn.Font = Enum.Font.GothamMedium
+    btn.TextSize = 13
+    btn.Parent = parent
 
-    Instance.new("UICorner",button).CornerRadius = UDim.new(0,6)
+    Instance.new("UICorner",btn).CornerRadius = UDim.new(0,6)
 
-    button.MouseButton1Click:Connect(function()
+    btn.MouseButton1Click:Connect(function()
 
         toggleStorage[key] = not toggleStorage[key]
 
         if toggleStorage[key] then
-            button.BackgroundColor3 = Colors.ToggleOn
-            button.TextColor3 = Colors.ToggleOnText
-            button.Text = "  ✓ "..name
+            btn.BackgroundColor3 = Colors.ToggleOn
+            btn.TextColor3 = Colors.ToggleOnText
+            btn.Text = "✓ "..name
         else
-            button.BackgroundColor3 = Colors.ToggleOff
-            button.TextColor3 = Colors.TextDim
-            button.Text = "  "..name
+            btn.BackgroundColor3 = Colors.ToggleOff
+            btn.TextColor3 = Colors.TextDim
+            btn.Text = name
         end
     end)
 end
 
--- CLEAR
-local function clearFrames()
+-- SETTINGS (FULL)
+local function loadSettings()
 
-    for _,v in pairs(togglesFrame:GetChildren()) do
-        v:Destroy()
+    subtitle.Text = "Hub Configuration"
+
+    -- THEME BUTTON GRID
+    local themes = {"Purple","Green","Ocean","Sunset","Midnight"}
+
+    local function themeBtn(name,i)
+
+        local b = Instance.new("TextButton")
+        b.Size = UDim2.new(0.48,0,0,34)
+        b.Position = UDim2.new((i%2==0) and 0.52 or 0,0,0,10 + math.floor((i-1)/2)*42)
+        b.BackgroundColor3 = Colors.Button
+        b.Text = name
+        b.TextColor3 = Colors.TextDim
+        b.Font = Enum.Font.GothamMedium
+        b.TextSize = 12
+        b.Parent = settingsFrame
+
+        Instance.new("UICorner",b).CornerRadius = UDim.new(0,6)
+
+        b.MouseButton1Click:Connect(function()
+            currentSettings.theme = name
+            updateUI()
+            loadSection("Settings")
+        end)
     end
 
-    for _,v in pairs(settingsFrame:GetChildren()) do
-        v:Destroy()
+    for i,v in ipairs(themes) do
+        themeBtn(v,i)
     end
+
+    local y = 120
+
+    -- OPACITY
+    local label = Instance.new("TextLabel")
+    label.Size = UDim2.new(1,0,0,20)
+    label.Position = UDim2.new(0,0,0,y)
+    label.BackgroundTransparency = 1
+    label.Text = "🌑 Background Opacity"
+    label.TextColor3 = Colors.TextDim
+    label.Parent = settingsFrame
+
+    local bar = Instance.new("Frame")
+    bar.Size = UDim2.new(1,0,0,8)
+    bar.Position = UDim2.new(0,0,0,y+25)
+    bar.BackgroundColor3 = Colors.Button
+    bar.Parent = settingsFrame
+
+    Instance.new("UICorner",bar).CornerRadius = UDim.new(1,0)
+
+    local fill = Instance.new("Frame")
+    fill.Size = UDim2.new(currentSettings.globalOpacity,0,1,0)
+    fill.BackgroundColor3 = Colors.Accent
+    fill.Parent = bar
+
+    Instance.new("UICorner",fill).CornerRadius = UDim.new(1,0)
+
+    local dragging = false
+
+    bar.InputBegan:Connect(function(i)
+        if i.UserInputType == Enum.UserInputType.MouseButton1 then dragging = true end
+    end)
+
+    UserInputService.InputEnded:Connect(function(i)
+        if i.UserInputType == Enum.UserInputType.MouseButton1 then dragging = false end
+    end)
+
+    UserInputService.InputChanged:Connect(function(i)
+        if dragging then
+            local p = math.clamp((i.Position.X-bar.AbsolutePosition.X)/bar.AbsoluteSize.X,0,1)
+            currentSettings.globalOpacity = p
+            fill.Size = UDim2.new(p,0,1,0)
+            updateUI()
+        end
+    end)
+
+    y = y + 70
+
+    local function mini(text,x,key)
+        toggleStorage[key] = toggleStorage[key] or false
+
+        local b = Instance.new("TextButton")
+        b.Size = UDim2.new(0.48,0,0,34)
+        b.Position = UDim2.new(x,0,0,y)
+        b.BackgroundColor3 = Colors.Button
+        b.Text = text
+        b.TextColor3 = Colors.TextDim
+        b.Parent = settingsFrame
+
+        Instance.new("UICorner",b).CornerRadius = UDim.new(0,6)
+
+        b.MouseButton1Click:Connect(function()
+            toggleStorage[key] = not toggleStorage[key]
+            b.Text = toggleStorage[key] and "✓ "..text or text
+        end)
+    end
+
+    mini("💾 Save Config",0,"save")
+    mini("🔁 Auto Load",0.52,"autoload")
+
+    -- FPS BOOST
+    local fps = Instance.new("TextButton")
+    fps.Size = UDim2.new(0.48,0,0,34)
+    fps.Position = UDim2.new(0,0,0,y+45)
+    fps.BackgroundColor3 = Colors.Button
+    fps.Text = "⚡ FPS Boost"
+    fps.TextColor3 = Colors.TextDim
+    fps.Parent = settingsFrame
+
+    Instance.new("UICorner",fps).CornerRadius = UDim.new(0,6)
+
+    fps.MouseButton1Click:Connect(function()
+        setfpscap(999)
+        fps.Text = "⚡ FPS Boost ON"
+    end)
 end
 
--- LOAD SECTION
+-- SECTION LOADER
 local function loadSection(name)
 
-    clearFrames()
-
-    sectionTitle.Text = string.upper(name)
+    for _,v in pairs(togglesFrame:GetChildren()) do v:Destroy() end
+    for _,v in pairs(settingsFrame:GetChildren()) do v:Destroy() end
 
     togglesFrame.Visible = name ~= "Settings"
     settingsFrame.Visible = name == "Settings"
 
+    sectionTitle.Text = string.upper(name)
+
     if name == "Settings" then
-
-        subtitle.Text = "Hub Configuration"
-
-        -- THEME LABEL
-        local themeLabel = Instance.new("TextLabel")
-        themeLabel.Size = UDim2.new(1,0,0,20)
-        themeLabel.Position = UDim2.new(0,0,0,10)
-        themeLabel.BackgroundTransparency = 1
-        themeLabel.Text = "🎨 Theme"
-        themeLabel.TextColor3 = Colors.TextDim
-        themeLabel.Font = Enum.Font.GothamMedium
-        themeLabel.TextSize = 12
-        themeLabel.TextXAlignment = Enum.TextXAlignment.Left
-        themeLabel.Parent = settingsFrame
-
-        -- DROPDOWN
-        local dropdownFrame = Instance.new("Frame")
-        dropdownFrame.Size = UDim2.new(1,0,0,34)
-        dropdownFrame.Position = UDim2.new(0,0,0,35)
-        dropdownFrame.BackgroundColor3 = Colors.Button
-        dropdownFrame.BackgroundTransparency = 0.2
-        dropdownFrame.BorderSizePixel = 0
-        dropdownFrame.ClipsDescendants = true
-        dropdownFrame.Parent = settingsFrame
-
-        Instance.new("UICorner",dropdownFrame).CornerRadius = UDim.new(0,6)
-
-        local dropdownOpen = false
-
-        local dropdownButton = Instance.new("TextButton")
-        dropdownButton.Size = UDim2.new(1,0,0,34)
-        dropdownButton.BackgroundTransparency = 1
-        dropdownButton.Text = "  ▼  "..currentSettings.theme
-        dropdownButton.TextColor3 = Colors.Text
-        dropdownButton.Font = Enum.Font.GothamMedium
-        dropdownButton.TextSize = 13
-        dropdownButton.TextXAlignment = Enum.TextXAlignment.Left
-        dropdownButton.Parent = dropdownFrame
-
-        local themes = {"Purple","Green","Ocean","Sunset","Midnight"}
-
-        dropdownButton.MouseButton1Click:Connect(function()
-
-            dropdownOpen = not dropdownOpen
-
-            if dropdownOpen then
-                dropdownFrame:TweenSize(
-                    UDim2.new(1,0,0,34 + (#themes * 30)),
-                    Enum.EasingDirection.Out,
-                    Enum.EasingStyle.Quint,
-                    0.2,
-                    true
-                )
-            else
-                dropdownFrame:TweenSize(
-                    UDim2.new(1,0,0,34),
-                    Enum.EasingDirection.Out,
-                    Enum.EasingStyle.Quint,
-                    0.2,
-                    true
-                )
-            end
-        end)
-
-        for i,themeName in ipairs(themes) do
-
-            local option = Instance.new("TextButton")
-            option.Size = UDim2.new(1,0,0,30)
-            option.Position = UDim2.new(0,0,0,34 + ((i-1)*30))
-            option.BackgroundTransparency = 1
-            option.Text = "   "..themeName
-            option.TextColor3 = Colors.TextDim
-            option.Font = Enum.Font.GothamMedium
-            option.TextSize = 12
-            option.TextXAlignment = Enum.TextXAlignment.Left
-            option.Parent = dropdownFrame
-
-            option.MouseButton1Click:Connect(function()
-
-                currentSettings.theme = themeName
-
-                dropdownButton.Text = "  ▼  "..themeName
-
-                dropdownOpen = false
-
-                dropdownFrame:TweenSize(
-                    UDim2.new(1,0,0,34),
-                    Enum.EasingDirection.Out,
-                    Enum.EasingStyle.Quint,
-                    0.2,
-                    true
-                )
-
-                updateUI()
-                loadSection("Settings")
-            end)
-        end
-
-        -- OPACITY
-        local opacityLabel = Instance.new("TextLabel")
-        opacityLabel.Size = UDim2.new(1,0,0,20)
-        opacityLabel.Position = UDim2.new(0,0,0,125)
-        opacityLabel.BackgroundTransparency = 1
-        opacityLabel.Text = "🌑 Background Opacity: "..math.floor(currentSettings.globalOpacity * 100).."%"
-        opacityLabel.TextColor3 = Colors.TextDim
-        opacityLabel.Font = Enum.Font.GothamMedium
-        opacityLabel.TextSize = 12
-        opacityLabel.TextXAlignment = Enum.TextXAlignment.Left
-        opacityLabel.Parent = settingsFrame
-
-        local sliderBar = Instance.new("Frame")
-        sliderBar.Size = UDim2.new(1,0,0,8)
-        sliderBar.Position = UDim2.new(0,0,0,155)
-        sliderBar.BackgroundColor3 = Colors.Button
-        sliderBar.BorderSizePixel = 0
-        sliderBar.Parent = settingsFrame
-
-        Instance.new("UICorner",sliderBar).CornerRadius = UDim.new(1,0)
-
-        local fill = Instance.new("Frame")
-        fill.Size = UDim2.new(currentSettings.globalOpacity,0,1,0)
-        fill.BackgroundColor3 = Colors.Accent
-        fill.BorderSizePixel = 0
-        fill.Parent = sliderBar
-
-        Instance.new("UICorner",fill).CornerRadius = UDim.new(1,0)
-
-        local draggingSlider = false
-
-        sliderBar.InputBegan:Connect(function(input)
-            if input.UserInputType == Enum.UserInputType.MouseButton1 then
-                draggingSlider = true
-            end
-        end)
-
-        UserInputService.InputEnded:Connect(function(input)
-            if input.UserInputType == Enum.UserInputType.MouseButton1 then
-                draggingSlider = false
-            end
-        end)
-
-        UserInputService.InputChanged:Connect(function(input)
-
-            if draggingSlider and input.UserInputType == Enum.UserInputType.MouseMovement then
-
-                local percent = math.clamp(
-                    (input.Position.X - sliderBar.AbsolutePosition.X) / sliderBar.AbsoluteSize.X,
-                    0,
-                    1
-                )
-
-                currentSettings.globalOpacity = percent
-
-                fill.Size = UDim2.new(percent,0,1,0)
-
-                opacityLabel.Text =
-                    "🌑 Background Opacity: "..math.floor(percent * 100).."%"
-
-                updateUI()
-            end
-        end)
-
-        -- SAVE + AUTOLOAD
-        local function createMiniToggle(text,posX,key)
-
-            toggleStorage[key] = toggleStorage[key] or false
-
-            local button = Instance.new("TextButton")
-            button.Size = UDim2.new(0.48,0,0,34)
-            button.Position = UDim2.new(posX,0,0,205)
-            button.BackgroundColor3 = Colors.ToggleOff
-            button.BackgroundTransparency = 0.2
-            button.BorderSizePixel = 0
-            button.Text = text
-            button.TextColor3 = Colors.TextDim
-            button.Font = Enum.Font.GothamMedium
-            button.TextSize = 12
-            button.Parent = settingsFrame
-
-            Instance.new("UICorner",button).CornerRadius = UDim.new(0,6)
-
-            button.MouseButton1Click:Connect(function()
-
-                toggleStorage[key] = not toggleStorage[key]
-
-                if toggleStorage[key] then
-                    button.BackgroundColor3 = Colors.ToggleOn
-                    button.TextColor3 = Colors.ToggleOnText
-                    button.Text = "✓ "..text
-                else
-                    button.BackgroundColor3 = Colors.ToggleOff
-                    button.TextColor3 = Colors.TextDim
-                    button.Text = text
-                end
-            end)
-        end
-
-        createMiniToggle("💾 Save Config",0,"save")
-        createMiniToggle("🔁 Auto Load",0.52,"autoload")
-
+        loadSettings()
     else
-
         subtitle.Text = "Features"
 
-        local toggles = {
-            "⚡ Speed Hack",
-            "🕊️ Fly Hack",
-            "👁️ Player ESP",
-            "🎯 Teleport",
-            "💨 Fast Walk"
-        }
+        local list = {"Speed","Fly","ESP","TP","FastWalk"}
 
-        for i,v in ipairs(toggles) do
+        for i,v in ipairs(list) do
             createToggle(v,(i-1)*40,v,togglesFrame)
         end
     end
 end
 
--- SIDEBAR
-local sections = {
-    "Main",
-    "Farm",
-    "Extra",
-    "PVP",
-    "Shop",
-    "Misc",
-    "Settings"
-}
+-- SIDEBAR + HOVER GLOW
+local sections = {"Main","Farm","Extra","PVP","Shop","Misc","Settings"}
 
-for i,section in ipairs(sections) do
+for i,name in ipairs(sections) do
 
-    local button = Instance.new("TextButton")
-    button.Size = UDim2.new(1,-24,0,36)
-    button.Position = UDim2.new(0,12,0,i*42)
-    button.BackgroundColor3 = Colors.Button
-    button.BackgroundTransparency = 0.25
-    button.BorderSizePixel = 0
-    button.Text = "  "..section
-    button.TextColor3 = Colors.TextDim
-    button.Font = Enum.Font.GothamBold
-    button.TextSize = 12
-    button.TextXAlignment = Enum.TextXAlignment.Left
-    button.Parent = sidebar
+    local b = Instance.new("TextButton")
+    b.Size = UDim2.new(1,-24,0,36)
+    b.Position = UDim2.new(0,12,0,i*42)
+    b.BackgroundColor3 = Colors.Button
+    b.Text = name
+    b.TextColor3 = Colors.TextDim
+    b.Parent = sidebar
 
-    Instance.new("UICorner",button).CornerRadius = UDim.new(0,6)
+    Instance.new("UICorner",b).CornerRadius = UDim.new(0,6)
 
-    table.insert(sidebarButtons,button)
+    b.MouseEnter:Connect(function()
+        b.TextColor3 = Colors.Accent
+        b.BackgroundTransparency = 0
+    end)
 
-    button.MouseEnter:Connect(function()
-
-        if button ~= selectedButton then
-            button.BackgroundTransparency = 0.1
+    b.MouseLeave:Connect(function()
+        if b ~= selectedButton then
+            b.TextColor3 = Colors.TextDim
+            b.BackgroundTransparency = 0.2
         end
     end)
 
-    button.MouseLeave:Connect(function()
-
-        if button ~= selectedButton then
-            button.BackgroundTransparency = 0.25
-        end
-    end)
-
-    button.MouseButton1Click:Connect(function()
+    b.MouseButton1Click:Connect(function()
 
         if selectedButton then
-            selectedButton.BackgroundTransparency = 0.25
+            selectedButton.BackgroundTransparency = 0.2
             selectedButton.TextColor3 = Colors.TextDim
         end
 
-        selectedButton = button
+        selectedButton = b
+        b.TextColor3 = Colors.Accent
+        b.BackgroundTransparency = 0
 
-        button.BackgroundTransparency = 0
-        button.TextColor3 = Colors.Accent
-
-        loadSection(section)
+        loadSection(name)
     end)
 
     if i == 1 then
-        selectedButton = button
-        button.BackgroundTransparency = 0
-        button.TextColor3 = Colors.Accent
-        loadSection(section)
+        selectedButton = b
+        b.BackgroundTransparency = 0
+        b.TextColor3 = Colors.Accent
+        loadSection(name)
     end
+
+    table.insert(sidebarButtons,b)
 end
 
--- VERSION
-local version = Instance.new("TextLabel")
-version.Size = UDim2.new(1,-24,0,20)
-version.Position = UDim2.new(0,12,1,-28)
-version.BackgroundTransparency = 1
-version.Text = "v2.0.0"
-version.TextColor3 = Colors.TextDim
-version.Font = Enum.Font.Gotham
-version.TextSize = 9
-version.Parent = sidebar
+-- DRAG
+local dragging,dragStart,startPos
 
--- TOGGLE UI
-UserInputService.InputBegan:Connect(function(input,gp)
-
-    if gp then return end
-
-    if input.KeyCode == Enum.KeyCode.RightControl then
-        mainFrame.Visible = not mainFrame.Visible
-    end
-end)
-
--- DRAGGING
-local dragging = false
-local dragStart
-local startPos
-
-topBar.InputBegan:Connect(function(input)
-
-    if input.UserInputType == Enum.UserInputType.MouseButton1 then
-
+topBar.InputBegan:Connect(function(i)
+    if i.UserInputType == Enum.UserInputType.MouseButton1 then
         dragging = true
-        dragStart = input.Position
+        dragStart = i.Position
         startPos = mainFrame.Position
-
-        input.Changed:Connect(function()
-
-            if input.UserInputState == Enum.UserInputState.End then
-                dragging = false
-            end
-        end)
     end
 end)
 
-UserInputService.InputChanged:Connect(function(input)
-
-    if dragging and input.UserInputType == Enum.UserInputType.MouseMovement then
-
-        local delta = input.Position - dragStart
-
+UserInputService.InputChanged:Connect(function(i)
+    if dragging then
+        local d = i.Position - dragStart
         mainFrame.Position = UDim2.new(
             startPos.X.Scale,
-            startPos.X.Offset + delta.X,
+            startPos.X.Offset + d.X,
             startPos.Y.Scale,
-            startPos.Y.Offset + delta.Y
+            startPos.Y.Offset + d.Y
         )
     end
 end)
 
-print("✅ SairHub v2 Loaded")
-print("🎨 Dropdown Themes Enabled")
-print("🌑 Unified Background Opacity")
-print("🖱️ Dragging Fixed")
-print("📜 Scrollable UI Enabled")
+UserInputService.InputEnded:Connect(function(i)
+    if i.UserInputType == Enum.UserInputType.MouseButton1 then
+        dragging = false
+    end
+end)
+
+print("SairHub Loaded ✔")
+print("Theme Glow Sidebar Enabled ✨")
+print("FPS Boost + Settings UI Ready ⚡")
