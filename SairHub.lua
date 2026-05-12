@@ -1,446 +1,382 @@
---// SairHub v2 Remastered
---// Modern UI + Fixed Dragging + Proper Scrolling + Full Theme Support
-
+--// SairHub v2 | Fixed Draggable + Proper Scrolling + Dynamic Themes
 local startTime = tick()
 
---// Services
 local Players = game:GetService("Players")
-local UIS = game:GetService("UserInputService")
+local UserInputService = game:GetService("UserInputService")
 local TweenService = game:GetService("TweenService")
-local Lighting = game:GetService("Lighting")
 
 local player = Players.LocalPlayer
 local playerGui = player:WaitForChild("PlayerGui")
 
---// Blur
-local blur = Instance.new("BlurEffect")
-blur.Size = 12
-blur.Parent = Lighting
+--// Remove old UI
+pcall(function()
+    playerGui:FindFirstChild("SairHub"):Destroy()
+end)
 
 --// Themes
 local Themes = {
-	Purple = {
-		Background = Color3.fromRGB(25,23,36),
-		Sidebar = Color3.fromRGB(30,28,46),
-		Accent = Color3.fromRGB(189,147,249),
-		Text = Color3.fromRGB(248,248,242),
-		TextDim = Color3.fromRGB(160,160,180),
-		Button = Color3.fromRGB(40,38,56),
-		ToggleOn = Color3.fromRGB(80,250,123),
-		Close = Color3.fromRGB(255,85,85),
-	},
+    Purple = {
+        Background = Color3.fromRGB(25,23,36),
+        Sidebar = Color3.fromRGB(30,28,46),
+        Accent = Color3.fromRGB(189,147,249),
+        Text = Color3.fromRGB(248,248,242),
+        TextDim = Color3.fromRGB(150,148,168),
+        Button = Color3.fromRGB(40,38,56),
+        ToggleOn = Color3.fromRGB(80,250,123),
+        ToggleOff = Color3.fromRGB(40,38,56),
+        Close = Color3.fromRGB(255,85,85),
+        ToggleOnText = Color3.new(0,0,0)
+    },
 
-	Ocean = {
-		Background = Color3.fromRGB(13,27,42),
-		Sidebar = Color3.fromRGB(18,34,52),
-		Accent = Color3.fromRGB(33,158,188),
-		Text = Color3.fromRGB(248,248,242),
-		TextDim = Color3.fromRGB(140,170,190),
-		Button = Color3.fromRGB(22,42,63),
-		ToggleOn = Color3.fromRGB(42,157,143),
-		Close = Color3.fromRGB(255,85,85),
-	},
+    Green = {
+        Background = Color3.fromRGB(20,30,20),
+        Sidebar = Color3.fromRGB(25,38,25),
+        Accent = Color3.fromRGB(80,250,123),
+        Text = Color3.fromRGB(248,248,242),
+        TextDim = Color3.fromRGB(140,160,140),
+        Button = Color3.fromRGB(35,50,35),
+        ToggleOn = Color3.fromRGB(80,250,123),
+        ToggleOff = Color3.fromRGB(35,50,35),
+        Close = Color3.fromRGB(255,85,85),
+        ToggleOnText = Color3.new(0,0,0)
+    },
 
-	Green = {
-		Background = Color3.fromRGB(20,30,20),
-		Sidebar = Color3.fromRGB(25,38,25),
-		Accent = Color3.fromRGB(80,250,123),
-		Text = Color3.fromRGB(248,248,242),
-		TextDim = Color3.fromRGB(150,180,150),
-		Button = Color3.fromRGB(35,50,35),
-		ToggleOn = Color3.fromRGB(80,250,123),
-		Close = Color3.fromRGB(255,85,85),
-	}
+    Ocean = {
+        Background = Color3.fromRGB(13,27,42),
+        Sidebar = Color3.fromRGB(18,34,52),
+        Accent = Color3.fromRGB(33,158,188),
+        Text = Color3.fromRGB(248,248,242),
+        TextDim = Color3.fromRGB(120,155,175),
+        Button = Color3.fromRGB(22,42,63),
+        ToggleOn = Color3.fromRGB(42,157,143),
+        ToggleOff = Color3.fromRGB(22,42,63),
+        Close = Color3.fromRGB(255,85,85),
+        ToggleOnText = Color3.new(0,0,0)
+    },
+
+    Sunset = {
+        Background = Color3.fromRGB(40,25,25),
+        Sidebar = Color3.fromRGB(50,32,32),
+        Accent = Color3.fromRGB(255,140,0),
+        Text = Color3.fromRGB(248,248,242),
+        TextDim = Color3.fromRGB(180,150,130),
+        Button = Color3.fromRGB(55,38,38),
+        ToggleOn = Color3.fromRGB(255,180,50),
+        ToggleOff = Color3.fromRGB(55,38,38),
+        Close = Color3.fromRGB(255,85,85),
+        ToggleOnText = Color3.new(0,0,0)
+    },
+
+    Midnight = {
+        Background = Color3.fromRGB(10,10,25),
+        Sidebar = Color3.fromRGB(15,15,35),
+        Accent = Color3.fromRGB(98,114,230),
+        Text = Color3.fromRGB(230,230,250),
+        TextDim = Color3.fromRGB(130,130,170),
+        Button = Color3.fromRGB(20,20,40),
+        ToggleOn = Color3.fromRGB(80,200,120),
+        ToggleOff = Color3.fromRGB(20,20,40),
+        Close = Color3.fromRGB(255,85,85),
+        ToggleOnText = Color3.new(0,0,0)
+    }
 }
 
-local Settings = {
-	Theme = "Purple",
-	Opacity = 0.15
+local currentSettings = {
+    theme = "Purple",
+    globalOpacity = 0.15
 }
 
-local Colors = Themes[Settings.Theme]
+local Colors = Themes[currentSettings.theme]
 
 --// GUI
-local gui = Instance.new("ScreenGui")
-gui.Name = "SairHub"
-gui.ResetOnSpawn = false
-gui.Parent = playerGui
+local screenGui = Instance.new("ScreenGui")
+screenGui.Name = "SairHub"
+screenGui.ResetOnSpawn = false
+screenGui.Parent = playerGui
 
---// Main Frame
-local main = Instance.new("Frame")
-main.Size = UDim2.new(0, 650, 0, 420)
-main.Position = UDim2.new(0.5,-325,0.5,-210)
-main.BackgroundColor3 = Colors.Background
-main.BackgroundTransparency = Settings.Opacity
-main.BorderSizePixel = 0
-main.Parent = gui
-main.Active = true
+local mainFrame = Instance.new("Frame")
+mainFrame.Size = UDim2.new(0,620,0,380)
+mainFrame.Position = UDim2.new(0.5,-310,0.5,-190)
+mainFrame.BackgroundColor3 = Colors.Background
+mainFrame.BackgroundTransparency = currentSettings.globalOpacity
+mainFrame.BorderSizePixel = 0
+mainFrame.Active = true
+mainFrame.Parent = screenGui
 
-Instance.new("UICorner", main).CornerRadius = UDim.new(0,12)
+Instance.new("UICorner", mainFrame).CornerRadius = UDim.new(0,10)
 
 local stroke = Instance.new("UIStroke")
 stroke.Color = Colors.Accent
+stroke.Thickness = 1.5
 stroke.Transparency = 0.3
-stroke.Parent = main
-
---// Shadow
-local shadow = Instance.new("ImageLabel")
-shadow.Name = "Shadow"
-shadow.Image = "rbxassetid://1316045217"
-shadow.ScaleType = Enum.ScaleType.Slice
-shadow.SliceCenter = Rect.new(10,10,118,118)
-shadow.Size = UDim2.new(1,30,1,30)
-shadow.Position = UDim2.new(0,-15,0,-15)
-shadow.BackgroundTransparency = 1
-shadow.ImageTransparency = 0.5
-shadow.ZIndex = 0
-shadow.Parent = main
+stroke.Parent = mainFrame
 
 --// Topbar
-local topbar = Instance.new("Frame")
-topbar.Size = UDim2.new(1,0,0,40)
-topbar.BackgroundColor3 = Colors.Sidebar
-topbar.BackgroundTransparency = Settings.Opacity
-topbar.BorderSizePixel = 0
-topbar.Parent = main
+local topBar = Instance.new("Frame")
+topBar.Size = UDim2.new(1,0,0,35)
+topBar.BackgroundColor3 = Colors.Sidebar
+topBar.BackgroundTransparency = currentSettings.globalOpacity
+topBar.BorderSizePixel = 0
+topBar.Parent = mainFrame
 
-Instance.new("UICorner", topbar).CornerRadius = UDim.new(0,12)
+Instance.new("UICorner", topBar).CornerRadius = UDim.new(0,10)
 
 local title = Instance.new("TextLabel")
 title.Size = UDim2.new(1,-50,1,0)
-title.Position = UDim2.new(0,15,0,0)
+title.Position = UDim2.new(0,16,0,0)
 title.BackgroundTransparency = 1
-title.Text = "🔥 SairHub v2 Remastered"
+title.Text = "🔥 SairHub v2"
+title.TextColor3 = Colors.Accent
 title.Font = Enum.Font.GothamBold
 title.TextSize = 16
-title.TextColor3 = Colors.Accent
 title.TextXAlignment = Enum.TextXAlignment.Left
-title.Parent = topbar
+title.Parent = topBar
 
---// Close Button
-local close = Instance.new("TextButton")
-close.Size = UDim2.new(0,28,0,28)
-close.Position = UDim2.new(1,-36,0,6)
-close.BackgroundColor3 = Colors.Close
-close.Text = "✕"
-close.TextColor3 = Colors.Text
-close.Font = Enum.Font.GothamBold
-close.TextSize = 15
-close.BorderSizePixel = 0
-close.Parent = topbar
+--// Close
+local closeBtn = Instance.new("TextButton")
+closeBtn.Size = UDim2.new(0,28,0,28)
+closeBtn.Position = UDim2.new(1,-34,0,3)
+closeBtn.BackgroundColor3 = Colors.Close
+closeBtn.BackgroundTransparency = 0.5
+closeBtn.Text = "✕"
+closeBtn.Font = Enum.Font.GothamBold
+closeBtn.TextSize = 15
+closeBtn.TextColor3 = Colors.Text
+closeBtn.BorderSizePixel = 0
+closeBtn.Parent = topBar
 
-Instance.new("UICorner", close).CornerRadius = UDim.new(0,6)
+Instance.new("UICorner", closeBtn).CornerRadius = UDim.new(0,6)
 
-close.MouseEnter:Connect(function()
-	TweenService:Create(close,TweenInfo.new(.15),{
-		BackgroundTransparency = .2
-	}):Play()
-end)
-
-close.MouseLeave:Connect(function()
-	TweenService:Create(close,TweenInfo.new(.15),{
-		BackgroundTransparency = .5
-	}):Play()
-end)
-
-close.MouseButton1Click:Connect(function()
-	main.Visible = false
+closeBtn.MouseButton1Click:Connect(function()
+    mainFrame.Visible = false
 end)
 
 --// Sidebar
 local sidebar = Instance.new("Frame")
-sidebar.Size = UDim2.new(0,180,1,-40)
-sidebar.Position = UDim2.new(0,0,0,40)
+sidebar.Size = UDim2.new(0,170,1,-35)
+sidebar.Position = UDim2.new(0,0,0,35)
 sidebar.BackgroundColor3 = Colors.Sidebar
-sidebar.BackgroundTransparency = Settings.Opacity
+sidebar.BackgroundTransparency = currentSettings.globalOpacity
 sidebar.BorderSizePixel = 0
-sidebar.Parent = main
+sidebar.Parent = mainFrame
 
-local sidebarPadding = Instance.new("UIPadding")
-sidebarPadding.PaddingTop = UDim.new(0,15)
-sidebarPadding.PaddingLeft = UDim.new(0,10)
-sidebarPadding.PaddingRight = UDim.new(0,10)
-sidebarPadding.Parent = sidebar
+Instance.new("UICorner", sidebar).CornerRadius = UDim.new(0,10)
 
-local sidebarLayout = Instance.new("UIListLayout")
-sidebarLayout.Padding = UDim.new(0,8)
-sidebarLayout.Parent = sidebar
+local navTitle = Instance.new("TextLabel")
+navTitle.Size = UDim2.new(1,0,0,22)
+navTitle.Position = UDim2.new(0,0,0,8)
+navTitle.BackgroundTransparency = 1
+navTitle.Text = "NAVIGATION"
+navTitle.TextColor3 = Colors.TextDim
+navTitle.Font = Enum.Font.GothamBold
+navTitle.TextSize = 9
+navTitle.Parent = sidebar
 
 --// Content
-local content = Instance.new("ScrollingFrame")
-content.Size = UDim2.new(1,-180,1,-40)
-content.Position = UDim2.new(0,180,0,40)
-content.BackgroundTransparency = 1
-content.BorderSizePixel = 0
-content.ScrollBarThickness = 4
-content.ScrollBarImageColor3 = Colors.Accent
-content.AutomaticCanvasSize = Enum.AutomaticSize.Y
-content.CanvasSize = UDim2.new(0,0,0,0)
-content.Parent = main
+local contentArea = Instance.new("Frame")
+contentArea.Size = UDim2.new(1,-170,1,-35)
+contentArea.Position = UDim2.new(0,170,0,35)
+contentArea.BackgroundTransparency = 1
+contentArea.Parent = mainFrame
 
-local contentPadding = Instance.new("UIPadding")
-contentPadding.PaddingTop = UDim.new(0,20)
-contentPadding.PaddingLeft = UDim.new(0,20)
-contentPadding.PaddingRight = UDim.new(0,20)
-contentPadding.Parent = content
+local scrollingFrame = Instance.new("ScrollingFrame")
+scrollingFrame.Size = UDim2.new(1,0,1,0)
+scrollingFrame.CanvasSize = UDim2.new(0,0,0,800)
+scrollingFrame.ScrollBarThickness = 4
+scrollingFrame.ScrollBarImageColor3 = Colors.Accent
+scrollingFrame.BackgroundTransparency = 1
+scrollingFrame.BorderSizePixel = 0
+scrollingFrame.Parent = contentArea
+scrollingFrame.AutomaticCanvasSize = Enum.AutomaticSize.Y
 
-local contentLayout = Instance.new("UIListLayout")
-contentLayout.Padding = UDim.new(0,10)
-contentLayout.Parent = content
+local layout = Instance.new("UIListLayout")
+layout.Padding = UDim.new(0,10)
+layout.Parent = scrollingFrame
 
---// Title
+layout:GetPropertyChangedSignal("AbsoluteContentSize"):Connect(function()
+    scrollingFrame.CanvasSize = UDim2.new(0,0,0,layout.AbsoluteContentSize.Y + 20)
+end)
+
+--// Section Header
 local sectionTitle = Instance.new("TextLabel")
-sectionTitle.Size = UDim2.new(1,0,0,45)
+sectionTitle.Size = UDim2.new(1,-40,0,50)
+sectionTitle.Position = UDim2.new(0,20,0,10)
 sectionTitle.BackgroundTransparency = 1
 sectionTitle.Text = "MAIN"
-sectionTitle.Font = Enum.Font.GothamBlack
-sectionTitle.TextSize = 35
 sectionTitle.TextColor3 = Colors.Text
+sectionTitle.Font = Enum.Font.GothamBlack
+sectionTitle.TextSize = 38
 sectionTitle.TextXAlignment = Enum.TextXAlignment.Left
-sectionTitle.Parent = content
+sectionTitle.Parent = scrollingFrame
 
 local subtitle = Instance.new("TextLabel")
-subtitle.Size = UDim2.new(1,0,0,20)
+subtitle.Size = UDim2.new(1,-40,0,18)
 subtitle.BackgroundTransparency = 1
-subtitle.Text = "Main Features"
+subtitle.Text = "Essential Features"
+subtitle.TextColor3 = Colors.TextDim
 subtitle.Font = Enum.Font.Gotham
 subtitle.TextSize = 12
-subtitle.TextColor3 = Colors.TextDim
 subtitle.TextXAlignment = Enum.TextXAlignment.Left
-subtitle.Parent = content
+subtitle.Parent = scrollingFrame
 
---// Divider
-local divider = Instance.new("Frame")
-divider.Size = UDim2.new(1,0,0,1)
-divider.BackgroundColor3 = Colors.Accent
-divider.BackgroundTransparency = .6
-divider.BorderSizePixel = 0
-divider.Parent = content
+--// Toggle creator
+local toggles = {}
 
---// Toggle Holder
-local holder = Instance.new("Frame")
-holder.Size = UDim2.new(1,0,0,0)
-holder.BackgroundTransparency = 1
-holder.AutomaticSize = Enum.AutomaticSize.Y
-holder.Parent = content
+local function createToggle(text)
+    local btn = Instance.new("TextButton")
+    btn.Size = UDim2.new(1,-30,0,34)
+    btn.BackgroundColor3 = Colors.ToggleOff
+    btn.BackgroundTransparency = 0.3
+    btn.Text = "  "..text
+    btn.TextColor3 = Colors.TextDim
+    btn.Font = Enum.Font.GothamMedium
+    btn.TextSize = 13
+    btn.TextXAlignment = Enum.TextXAlignment.Left
+    btn.BorderSizePixel = 0
+    btn.AutoButtonColor = false
+    btn.Parent = scrollingFrame
 
-local holderLayout = Instance.new("UIListLayout")
-holderLayout.Padding = UDim.new(0,8)
-holderLayout.Parent = holder
+    Instance.new("UICorner", btn).CornerRadius = UDim.new(0,6)
 
---// Toggle Storage
-local Toggles = {}
+    local enabled = false
 
---// Toggle Creator
-local function CreateToggle(text,key)
+    btn.MouseButton1Click:Connect(function()
+        enabled = not enabled
 
-	Toggles[key] = false
+        TweenService:Create(btn,TweenInfo.new(0.15),{
+            BackgroundColor3 = enabled and Colors.ToggleOn or Colors.ToggleOff
+        }):Play()
 
-	local btn = Instance.new("TextButton")
-	btn.Size = UDim2.new(1,0,0,36)
-	btn.BackgroundColor3 = Colors.Button
-	btn.BackgroundTransparency = .2
-	btn.Text = "  "..text
-	btn.Font = Enum.Font.GothamMedium
-	btn.TextSize = 13
-	btn.TextColor3 = Colors.TextDim
-	btn.TextXAlignment = Enum.TextXAlignment.Left
-	btn.BorderSizePixel = 0
-	btn.AutoButtonColor = false
-	btn.Parent = holder
+        if enabled then
+            btn.Text = "  ✓  "..text
+            btn.TextColor3 = Colors.ToggleOnText
+        else
+            btn.Text = "  "..text
+            btn.TextColor3 = Colors.TextDim
+        end
+    end)
 
-	Instance.new("UICorner",btn).CornerRadius = UDim.new(0,8)
-
-	btn.MouseEnter:Connect(function()
-		if not Toggles[key] then
-			TweenService:Create(btn,TweenInfo.new(.15),{
-				BackgroundTransparency = .05
-			}):Play()
-		end
-	end)
-
-	btn.MouseLeave:Connect(function()
-		if not Toggles[key] then
-			TweenService:Create(btn,TweenInfo.new(.15),{
-				BackgroundTransparency = .2
-			}):Play()
-		end
-	end)
-
-	btn.MouseButton1Click:Connect(function()
-
-		Toggles[key] = not Toggles[key]
-
-		if Toggles[key] then
-
-			TweenService:Create(btn,TweenInfo.new(.15),{
-				BackgroundColor3 = Colors.ToggleOn
-			}):Play()
-
-			btn.TextColor3 = Color3.new(0,0,0)
-			btn.Text = "  ✓  "..text
-
-		else
-
-			TweenService:Create(btn,TweenInfo.new(.15),{
-				BackgroundColor3 = Colors.Button
-			}):Play()
-
-			btn.TextColor3 = Colors.TextDim
-			btn.Text = "  "..text
-		end
-	end)
+    table.insert(toggles, btn)
 end
 
 --// Toggles
-CreateToggle("⚡ Speed Hack","speed")
-CreateToggle("🕊️ Fly Hack","fly")
-CreateToggle("👁️ Player ESP","esp")
-CreateToggle("🎯 Teleport","tp")
-CreateToggle("💨 Fast Walk","walk")
-CreateToggle("⚔️ Silent Aim","silent")
-CreateToggle("🔫 Aimbot","aimbot")
-CreateToggle("🛡️ Auto Block","block")
-CreateToggle("🌾 Auto Farm","farm")
-CreateToggle("💎 Auto Collect","collect")
-CreateToggle("📦 Auto Loot","loot")
-CreateToggle("🔧 Noclip","noclip")
-CreateToggle("🔧 Infinite Jump","infjump")
-CreateToggle("🌙 Night Mode","night")
+createToggle("⚡ Speed Hack")
+createToggle("🕊️ Fly Hack")
+createToggle("👁️ Player ESP")
+createToggle("🎯 Teleport")
+createToggle("💨 Fast Walk")
+createToggle("🌾 Auto Farm")
+createToggle("⚔️ Auto Attack")
+createToggle("💎 Auto Collect")
+createToggle("📦 Auto Loot")
+createToggle("🏃 Auto Run")
+createToggle("🗺️ Auto Quest")
+createToggle("🔧 Noclip")
+createToggle("🔧 Infinite Jump")
+createToggle("🔧 God Mode")
+createToggle("🎯 Silent Aim")
+createToggle("🔫 Aimbot")
+createToggle("🛡️ Auto Block")
+createToggle("⚡ Quick Attack")
 
---// Sidebar Buttons
-local sections = {
-	{"🏠 Main"},
-	{"🌾 Farm"},
-	{"⚔️ PVP"},
-	{"📦 Misc"},
-	{"⚙️ Settings"}
-}
+--// Sidebar buttons
+local selectedButton
 
-for _,v in pairs(sections) do
+local function createSidebarButton(name, icon, y)
+    local btn = Instance.new("TextButton")
+    btn.Size = UDim2.new(1,-24,0,34)
+    btn.Position = UDim2.new(0,12,0,y)
+    btn.BackgroundColor3 = Colors.Button
+    btn.BackgroundTransparency = 0.5
+    btn.Text = "  "..icon.."  "..name
+    btn.TextColor3 = Colors.TextDim
+    btn.Font = Enum.Font.GothamMedium
+    btn.TextSize = 12
+    btn.TextXAlignment = Enum.TextXAlignment.Left
+    btn.BorderSizePixel = 0
+    btn.Parent = sidebar
 
-	local btn = Instance.new("TextButton")
-	btn.Size = UDim2.new(1,0,0,36)
-	btn.BackgroundColor3 = Colors.Button
-	btn.BackgroundTransparency = .3
-	btn.Text = "  "..v[1]
-	btn.Font = Enum.Font.GothamMedium
-	btn.TextSize = 13
-	btn.TextColor3 = Colors.TextDim
-	btn.TextXAlignment = Enum.TextXAlignment.Left
-	btn.BorderSizePixel = 0
-	btn.AutoButtonColor = false
-	btn.Parent = sidebar
+    Instance.new("UICorner", btn).CornerRadius = UDim.new(0,6)
 
-	Instance.new("UICorner",btn).CornerRadius = UDim.new(0,8)
+    btn.MouseButton1Click:Connect(function()
 
-	btn.MouseEnter:Connect(function()
-		TweenService:Create(btn,TweenInfo.new(.15),{
-			BackgroundTransparency = .1
-		}):Play()
-	end)
+        if selectedButton then
+            selectedButton.BackgroundTransparency = 0.5
+            selectedButton.TextColor3 = Colors.TextDim
+        end
 
-	btn.MouseLeave:Connect(function()
-		TweenService:Create(btn,TweenInfo.new(.15),{
-			BackgroundTransparency = .3
-		}):Play()
-	end)
+        selectedButton = btn
+
+        btn.BackgroundTransparency = 0.2
+        btn.TextColor3 = Colors.Accent
+
+        sectionTitle.Text = name:upper()
+        subtitle.Text = name.." Features"
+    end)
+
+    return btn
 end
 
---// Theme Updater
-local function UpdateTheme()
+createSidebarButton("Main","🏠",45)
+createSidebarButton("Farm","🌾",85)
+createSidebarButton("Extra","➕",125)
+createSidebarButton("PVP","⚔️",165)
+createSidebarButton("Shop","🛒",205)
+createSidebarButton("Misc","📦",245)
+createSidebarButton("Settings","⚙️",285)
 
-	Colors = Themes[Settings.Theme]
+--// Version label
+local version = Instance.new("TextLabel")
+version.Size = UDim2.new(1,-20,0,20)
+version.Position = UDim2.new(0,10,1,-24)
+version.BackgroundTransparency = 1
+version.Text = "v2.0.1 | Fixed Build"
+version.TextColor3 = Colors.TextDim
+version.Font = Enum.Font.Gotham
+version.TextSize = 9
+version.Parent = sidebar
 
-	main.BackgroundColor3 = Colors.Background
-	sidebar.BackgroundColor3 = Colors.Sidebar
-	topbar.BackgroundColor3 = Colors.Sidebar
-
-	title.TextColor3 = Colors.Accent
-	stroke.Color = Colors.Accent
-	divider.BackgroundColor3 = Colors.Accent
-
-	content.ScrollBarImageColor3 = Colors.Accent
-
-	for _,obj in pairs(gui:GetDescendants()) do
-
-		if obj:IsA("TextButton") then
-
-			if obj ~= close then
-				obj.BackgroundColor3 = Colors.Button
-				obj.TextColor3 = Colors.TextDim
-			end
-		end
-
-		if obj:IsA("TextLabel") then
-			if obj ~= title and obj ~= sectionTitle then
-				obj.TextColor3 = Colors.TextDim
-			end
-		end
-	end
-end
-
---// Keybind
-UIS.InputBegan:Connect(function(input,gp)
-	if gp then return end
-
-	if input.KeyCode == Enum.KeyCode.RightControl then
-		main.Visible = not main.Visible
-	end
-end)
-
---// Proper Dragging
+--// Proper draggable fix
 local dragging = false
-local dragInput
 local dragStart
 local startPos
 
-local function Update(input)
+topBar.InputBegan:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.MouseButton1 then
+        dragging = true
+        dragStart = input.Position
+        startPos = mainFrame.Position
 
-	local delta = input.Position - dragStart
-
-	main.Position = UDim2.new(
-		startPos.X.Scale,
-		startPos.X.Offset + delta.X,
-		startPos.Y.Scale,
-		startPos.Y.Offset + delta.Y
-	)
-end
-
-topbar.InputBegan:Connect(function(input)
-
-	if input.UserInputType == Enum.UserInputType.MouseButton1 then
-
-		dragging = true
-		dragStart = input.Position
-		startPos = main.Position
-
-		input.Changed:Connect(function()
-
-			if input.UserInputState == Enum.UserInputState.End then
-				dragging = false
-			end
-		end)
-	end
+        input.Changed:Connect(function()
+            if input.UserInputState == Enum.UserInputState.End then
+                dragging = false
+            end
+        end)
+    end
 end)
 
-topbar.InputChanged:Connect(function(input)
+UserInputService.InputChanged:Connect(function(input)
+    if dragging and input.UserInputType == Enum.UserInputType.MouseMovement then
 
-	if input.UserInputType == Enum.UserInputType.MouseMovement then
-		dragInput = input
-	end
+        local delta = input.Position - dragStart
+
+        mainFrame.Position = UDim2.new(
+            startPos.X.Scale,
+            startPos.X.Offset + delta.X,
+            startPos.Y.Scale,
+            startPos.Y.Offset + delta.Y
+        )
+    end
 end)
 
-UIS.InputChanged:Connect(function(input)
+--// Toggle keybind
+UserInputService.InputBegan:Connect(function(input,gp)
+    if gp then return end
 
-	if input == dragInput and dragging then
-		Update(input)
-	end
+    if input.KeyCode == Enum.KeyCode.RightControl then
+        mainFrame.Visible = not mainFrame.Visible
+    end
 end)
 
-print("✅ SairHub Remastered Loaded")
-print("🖱️ Fixed Dragging")
-print("📜 Proper Scrolling")
-print("🎨 Dynamic Themes")
-print("⚡ Smooth Tween Animations")
-print("👤 Welcome "..player.Name)
+print("✅ SairHub Loaded in "..string.format("%.3f", tick()-startTime).."ms")
+print("🖱️ Fixed Dragging | 📜 Proper Scrolling | 🎨 Dynamic Themes")
