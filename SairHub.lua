@@ -1,9 +1,9 @@
--- SairHub v2 | Modern UI + Theme Buttons + FPS Boost + Unified Opacity
+-- SairHub v2 | Modern UI + Instant Theme Switch + FPS Boost
 local startTime = tick()
 
 local Players = game:GetService("Players")
 local UserInputService = game:GetService("UserInputService")
-local RunService = game:GetService("RunService")
+local Workspace = game:GetService("Workspace")
 
 local player = Players.LocalPlayer
 local playerGui = player:WaitForChild("PlayerGui")
@@ -26,20 +26,70 @@ local Themes = {
         Close = Color3.fromRGB(255, 85, 85),
         ToggleOnText = Color3.fromRGB(0,0,0)
     },
-    Green = { Background = Color3.fromRGB(20,30,20), Sidebar = Color3.fromRGB(25,38,25), Accent = Color3.fromRGB(80,250,123), Text = Color3.fromRGB(240,255,240), TextDim = Color3.fromRGB(140,160,140), Button = Color3.fromRGB(35,50,35), ToggleOn = Color3.fromRGB(80,250,123), ToggleOff = Color3.fromRGB(35,50,35), Close = Color3.fromRGB(255,85,85), ToggleOnText = Color3.fromRGB(0,0,0) },
-    Ocean = { Background = Color3.fromRGB(13,27,42), Sidebar = Color3.fromRGB(18,34,52), Accent = Color3.fromRGB(33,158,188), Text = Color3.fromRGB(240,248,255), TextDim = Color3.fromRGB(120,155,175), Button = Color3.fromRGB(22,42,63), ToggleOn = Color3.fromRGB(42,157,143), ToggleOff = Color3.fromRGB(22,42,63), Close = Color3.fromRGB(255,85,85), ToggleOnText = Color3.fromRGB(0,0,0) },
-    Sunset = { Background = Color3.fromRGB(40,25,25), Sidebar = Color3.fromRGB(50,32,32), Accent = Color3.fromRGB(255,140,0), Text = Color3.fromRGB(255,240,220), TextDim = Color3.fromRGB(180,150,130), Button = Color3.fromRGB(55,38,38), ToggleOn = Color3.fromRGB(255,180,50), ToggleOff = Color3.fromRGB(55,38,38), Close = Color3.fromRGB(255,85,85), ToggleOnText = Color3.fromRGB(0,0,0) },
-    Midnight = { Background = Color3.fromRGB(10,10,25), Sidebar = Color3.fromRGB(15,15,35), Accent = Color3.fromRGB(98,114,230), Text = Color3.fromRGB(230,230,250), TextDim = Color3.fromRGB(130,130,170), Button = Color3.fromRGB(20,20,40), ToggleOn = Color3.fromRGB(80,200,120), ToggleOff = Color3.fromRGB(20,20,40), Close = Color3.fromRGB(255,85,85), ToggleOnText = Color3.fromRGB(0,0,0) }
+
+    Green = {
+        Background = Color3.fromRGB(20, 30, 20),
+        Sidebar = Color3.fromRGB(25, 38, 25),
+        Accent = Color3.fromRGB(80, 250, 123),
+        Text = Color3.fromRGB(240, 255, 240),
+        TextDim = Color3.fromRGB(140, 160, 140),
+        Button = Color3.fromRGB(35, 50, 35),
+        ToggleOn = Color3.fromRGB(80, 250, 123),
+        ToggleOff = Color3.fromRGB(35, 50, 35),
+        Close = Color3.fromRGB(255, 85, 85),
+        ToggleOnText = Color3.fromRGB(0,0,0)
+    },
+
+    Ocean = {
+        Background = Color3.fromRGB(13, 27, 42),
+        Sidebar = Color3.fromRGB(18, 34, 52),
+        Accent = Color3.fromRGB(33, 158, 188),
+        Text = Color3.fromRGB(240, 248, 255),
+        TextDim = Color3.fromRGB(120, 155, 175),
+        Button = Color3.fromRGB(22, 42, 63),
+        ToggleOn = Color3.fromRGB(42, 157, 143),
+        ToggleOff = Color3.fromRGB(22, 42, 63),
+        Close = Color3.fromRGB(255, 85, 85),
+        ToggleOnText = Color3.fromRGB(0,0,0)
+    },
+
+    Sunset = {
+        Background = Color3.fromRGB(40, 25, 25),
+        Sidebar = Color3.fromRGB(50, 32, 32),
+        Accent = Color3.fromRGB(255, 140, 0),
+        Text = Color3.fromRGB(255, 240, 220),
+        TextDim = Color3.fromRGB(180, 150, 130),
+        Button = Color3.fromRGB(55, 38, 38),
+        ToggleOn = Color3.fromRGB(255, 180, 50),
+        ToggleOff = Color3.fromRGB(55, 38, 38),
+        Close = Color3.fromRGB(255, 85, 85),
+        ToggleOnText = Color3.fromRGB(0,0,0)
+    },
+
+    Midnight = {
+        Background = Color3.fromRGB(10, 10, 25),
+        Sidebar = Color3.fromRGB(15, 15, 35),
+        Accent = Color3.fromRGB(98, 114, 230),
+        Text = Color3.fromRGB(230, 230, 250),
+        TextDim = Color3.fromRGB(130, 130, 170),
+        Button = Color3.fromRGB(20, 20, 40),
+        ToggleOn = Color3.fromRGB(80, 200, 120),
+        ToggleOff = Color3.fromRGB(20, 20, 40),
+        Close = Color3.fromRGB(255, 85, 85),
+        ToggleOnText = Color3.fromRGB(0,0,0)
+    }
 }
 
 -- SETTINGS
 local currentSettings = {
     theme = "Purple",
-    globalOpacity = 0.5,
-    fpsBoost = false
+    globalOpacity = 0.5
 }
 
 local Colors = Themes[currentSettings.theme]
+
+-- FPS BOOST STATE
+local fpsBoostEnabled = false
 
 -- GUI
 local screenGui = Instance.new("ScreenGui")
@@ -49,15 +99,15 @@ screenGui.Parent = playerGui
 
 -- MAIN
 local mainFrame = Instance.new("Frame")
-mainFrame.Size = UDim2.new(0,620,0,440)
-mainFrame.Position = UDim2.new(0.5,-310,0.5,-220)
+mainFrame.Size = UDim2.new(0, 620, 0, 440)
+mainFrame.Position = UDim2.new(0.5, -310, 0.5, -220)
 mainFrame.BackgroundColor3 = Colors.Background
 mainFrame.BackgroundTransparency = 1 - currentSettings.globalOpacity
 mainFrame.BorderSizePixel = 0
 mainFrame.Active = true
 mainFrame.Parent = screenGui
 
-Instance.new("UICorner", mainFrame).CornerRadius = UDim.new(0,10)
+Instance.new("UICorner", mainFrame).CornerRadius = UDim.new(0, 10)
 
 local uiStroke = Instance.new("UIStroke")
 uiStroke.Color = Colors.Accent
@@ -70,13 +120,15 @@ local topBar = Instance.new("Frame")
 topBar.Size = UDim2.new(1,0,0,38)
 topBar.BackgroundColor3 = Colors.Sidebar
 topBar.BackgroundTransparency = 1 - currentSettings.globalOpacity
+topBar.BorderSizePixel = 0
+topBar.Active = true
 topBar.Parent = mainFrame
 
 local titleLabel = Instance.new("TextLabel")
 titleLabel.Size = UDim2.new(1,-50,1,0)
 titleLabel.Position = UDim2.new(0,18,0,0)
 titleLabel.BackgroundTransparency = 1
-titleLabel.Text = "🔥 SairHub | Utility Script"
+titleLabel.Text = "🔥 SairHub | Utility Hub"
 titleLabel.TextColor3 = Colors.Accent
 titleLabel.Font = Enum.Font.GothamBold
 titleLabel.TextSize = 17
@@ -88,8 +140,11 @@ local closeButton = Instance.new("TextButton")
 closeButton.Size = UDim2.new(0,30,0,30)
 closeButton.Position = UDim2.new(1,-35,0,4)
 closeButton.BackgroundColor3 = Colors.Close
-closeButton.BackgroundTransparency = 0.3
+closeButton.BackgroundTransparency = 0.35
 closeButton.Text = "✕"
+closeButton.TextColor3 = Colors.Text
+closeButton.Font = Enum.Font.GothamBold
+closeButton.TextSize = 14
 closeButton.Parent = topBar
 Instance.new("UICorner", closeButton).CornerRadius = UDim.new(0,8)
 
@@ -117,6 +172,7 @@ scrollingFrame.Size = UDim2.new(1,0,1,0)
 scrollingFrame.BackgroundTransparency = 1
 scrollingFrame.ScrollBarThickness = 4
 scrollingFrame.ScrollBarImageColor3 = Colors.Accent
+scrollingFrame.CanvasSize = UDim2.new(0,0,0,700)
 scrollingFrame.Parent = contentArea
 
 local contentContainer = Instance.new("Frame")
@@ -130,28 +186,26 @@ sectionTitle.Size = UDim2.new(1,-50,0,50)
 sectionTitle.Position = UDim2.new(0,25,0,15)
 sectionTitle.BackgroundTransparency = 1
 sectionTitle.Text = "MAIN"
+sectionTitle.TextColor3 = Colors.Text
 sectionTitle.Font = Enum.Font.GothamBlack
 sectionTitle.TextSize = 38
-sectionTitle.TextColor3 = Colors.Text
+sectionTitle.TextXAlignment = Enum.TextXAlignment.Left
 sectionTitle.Parent = contentContainer
 
 local subtitleLabel = Instance.new("TextLabel")
 subtitleLabel.Size = UDim2.new(1,-50,0,20)
 subtitleLabel.Position = UDim2.new(0,25,0,65)
 subtitleLabel.BackgroundTransparency = 1
+subtitleLabel.Text = "Essential Features"
 subtitleLabel.TextColor3 = Colors.TextDim
-subtitleLabel.Font = Enum.Font.Gotham
-subtitleLabel.TextSize = 13
 subtitleLabel.Parent = contentContainer
 
--- DIVIDER
 local divider = Instance.new("Frame")
 divider.Size = UDim2.new(1,-50,0,1)
 divider.Position = UDim2.new(0,25,0,95)
 divider.BackgroundColor3 = Colors.Accent
 divider.Parent = contentContainer
 
--- FRAMES
 local togglesFrame = Instance.new("Frame")
 togglesFrame.Size = UDim2.new(1,-50,0,500)
 togglesFrame.Position = UDim2.new(0,25,0,110)
@@ -165,9 +219,13 @@ settingsFrame.BackgroundTransparency = 1
 settingsFrame.Visible = false
 settingsFrame.Parent = contentContainer
 
--- TOGGLES
+local toggleStorage = {}
+local selectedButton
+local sidebarButtons = {}
+
+-- TOGGLE
 local function createToggle(name,y,key,parent)
-    local state = false
+    toggleStorage[key] = false
 
     local button = Instance.new("TextButton")
     button.Size = UDim2.new(1,0,0,34)
@@ -175,190 +233,135 @@ local function createToggle(name,y,key,parent)
     button.BackgroundColor3 = Colors.ToggleOff
     button.Text = "  "..name
     button.Parent = parent
-    Instance.new("UICorner",button).CornerRadius = UDim.new(0,6)
+    Instance.new("UICorner", button).CornerRadius = UDim.new(0,6)
 
     button.MouseButton1Click:Connect(function()
-        state = not state
-        button.BackgroundColor3 = state and Colors.ToggleOn or Colors.ToggleOff
-        button.Text = state and " ✓ "..name or " "..name
+        toggleStorage[key] = not toggleStorage[key]
+
+        if toggleStorage[key] then
+            button.BackgroundColor3 = Colors.ToggleOn
+            button.Text = "  ✓ "..name
+        else
+            button.BackgroundColor3 = Colors.ToggleOff
+            button.Text = "  "..name
+        end
     end)
 end
 
 -- THEME BUTTONS (NO DROPDOWN)
 local function createThemeButton(name, y)
-    local btn = Instance.new("TextButton")
-    btn.Size = UDim2.new(1,0,0,34)
-    btn.Position = UDim2.new(0,0,0,y)
-    btn.BackgroundColor3 = Colors.Button
-    btn.Text = "  "..name
-    btn.TextColor3 = Colors.TextDim
-    btn.Parent = settingsFrame
-    Instance.new("UICorner",btn).CornerRadius = UDim.new(0,6)
+    local button = Instance.new("TextButton")
+    button.Size = UDim2.new(1,0,0,34)
+    button.Position = UDim2.new(0,0,0,y)
+    button.BackgroundColor3 = Colors.Button
+    button.Text = "🎨 "..name
+    button.Parent = settingsFrame
+    Instance.new("UICorner", button).CornerRadius = UDim.new(0,6)
 
-    btn.MouseButton1Click:Connect(function()
+    button.MouseButton1Click:Connect(function()
         currentSettings.theme = name
         Colors = Themes[name]
-
-        mainFrame.BackgroundColor3 = Colors.Background
-        topBar.BackgroundColor3 = Colors.Sidebar
-        sidebar.BackgroundColor3 = Colors.Sidebar
-        uiStroke.Color = Colors.Accent
-        divider.BackgroundColor3 = Colors.Accent
-        scrollingFrame.ScrollBarImageColor3 = Colors.Accent
-    end)
-end
-
--- SLIDER
-local function createSlider(label,min,max,current,y,callback)
-
-    local lbl = Instance.new("TextLabel")
-    lbl.Size = UDim2.new(1,0,0,20)
-    lbl.Position = UDim2.new(0,0,0,y)
-    lbl.BackgroundTransparency = 1
-    lbl.Text = label
-    lbl.TextColor3 = Colors.TextDim
-    lbl.Parent = settingsFrame
-
-    local bar = Instance.new("Frame")
-    bar.Size = UDim2.new(1,0,0,8)
-    bar.Position = UDim2.new(0,0,0,y+30)
-    bar.BackgroundColor3 = Colors.Button
-    bar.Parent = settingsFrame
-    Instance.new("UICorner",bar)
-
-    local fill = Instance.new("Frame")
-    fill.Size = UDim2.new(current,0,1,0)
-    fill.BackgroundColor3 = Colors.Accent
-    fill.Parent = bar
-    Instance.new("UICorner",fill)
-
-    local dragging = false
-
-    bar.InputBegan:Connect(function(i)
-        if i.UserInputType == Enum.UserInputType.MouseButton1 then dragging = true end
-    end)
-
-    UserInputService.InputEnded:Connect(function(i)
-        if i.UserInputType == Enum.UserInputType.MouseButton1 then dragging = false end
-    end)
-
-    UserInputService.InputChanged:Connect(function(i)
-        if dragging then
-            local p = math.clamp((i.Position.X-bar.AbsolutePosition.X)/bar.AbsoluteSize.X,0,1)
-            fill.Size = UDim2.new(p,0,1,0)
-            callback(p)
-        end
+        updateUI()
     end)
 end
 
 -- FPS BOOST
-local function fpsBoostToggle()
-    if currentSettings.fpsBoost then
+local function toggleFPSBoost()
+    fpsBoostEnabled = not fpsBoostEnabled
+
+    if fpsBoostEnabled then
         settings().Rendering.QualityLevel = Enum.QualityLevel.Level01
+        for _,v in pairs(game:GetDescendants()) do
+            if v:IsA("ParticleEmitter") or v:IsA("Trail") then
+                v.Enabled = false
+            end
+        end
     else
         settings().Rendering.QualityLevel = Enum.QualityLevel.Automatic
     end
 end
 
--- SETTINGS LAYOUT
-local function loadSettings()
+local function createFPSButton(y)
+    local button = Instance.new("TextButton")
+    button.Size = UDim2.new(1,0,0,34)
+    button.Position = UDim2.new(0,0,0,y)
+    button.BackgroundColor3 = Colors.Accent
+    button.Text = "⚡ FPS Boost"
+    button.Parent = settingsFrame
+    Instance.new("UICorner", button).CornerRadius = UDim.new(0,6)
 
-    createThemeButton("Purple",10)
-    createThemeButton("Green",50)
-    createThemeButton("Ocean",90)
-    createThemeButton("Sunset",130)
-    createThemeButton("Midnight",170)
-
-    createSlider("Background Opacity",0,1,currentSettings.globalOpacity,230,function(v)
-        currentSettings.globalOpacity = v
-        mainFrame.BackgroundTransparency = 1-v
-        topBar.BackgroundTransparency = 1-v
-        sidebar.BackgroundTransparency = 1-v
-    end)
-
-    -- SIDE BY SIDE BUTTONS
-    local autoSave = Instance.new("TextButton")
-    autoSave.Size = UDim2.new(0.48,0,0,34)
-    autoSave.Position = UDim2.new(0,0,0,300)
-    autoSave.Text = "Auto Save"
-    autoSave.Parent = settingsFrame
-    Instance.new("UICorner",autoSave)
-
-    local autoLoad = Instance.new("TextButton")
-    autoLoad.Size = UDim2.new(0.48,0,0,34)
-    autoLoad.Position = UDim2.new(0.52,0,0,300)
-    autoLoad.Text = "Auto Load"
-    autoLoad.Parent = settingsFrame
-    Instance.new("UICorner",autoLoad)
-
-    -- FPS BOOST BUTTON
-    local fpsBtn = Instance.new("TextButton")
-    fpsBtn.Size = UDim2.new(1,0,0,34)
-    fpsBtn.Position = UDim2.new(0,0,0,350)
-    fpsBtn.Text = "FPS Boost"
-    fpsBtn.Parent = settingsFrame
-    Instance.new("UICorner",fpsBtn)
-
-    fpsBtn.MouseButton1Click:Connect(function()
-        currentSettings.fpsBoost = not currentSettings.fpsBoost
-        fpsBoostToggle()
-        fpsBtn.Text = currentSettings.fpsBoost and "FPS Boost: ON" or "FPS Boost"
-    end)
+    button.MouseButton1Click:Connect(toggleFPSBoost)
 end
 
--- SECTION LOAD
-local function loadSection(name)
-    for _,v in pairs(togglesFrame:GetChildren()) do v:Destroy() end
-    for _,v in pairs(settingsFrame:GetChildren()) do v:Destroy() end
+-- UPDATE UI
+function updateUI()
+    Colors = Themes[currentSettings.theme]
 
-    sectionTitle.Text = name:upper()
+    mainFrame.BackgroundColor3 = Colors.Background
+    topBar.BackgroundColor3 = Colors.Sidebar
+    sidebar.BackgroundColor3 = Colors.Sidebar
+    uiStroke.Color = Colors.Accent
+    divider.BackgroundColor3 = Colors.Accent
+end
+
+-- LOAD SETTINGS
+local function loadSection(name)
+    for _,v in pairs(settingsFrame:GetChildren()) do v:Destroy() end
+    for _,v in pairs(togglesFrame:GetChildren()) do v:Destroy() end
+
+    sectionTitle.Text = name
 
     if name == "Settings" then
-        settingsFrame.Visible = true
-        togglesFrame.Visible = false
-        loadSettings()
-    else
-        settingsFrame.Visible = false
-        togglesFrame.Visible = true
+        subtitleLabel.Text = "Customization"
 
-        for i=1,5 do
-            createToggle("Feature "..i,i*40,"t"..i,togglesFrame)
+        local themes = {"Purple","Green","Ocean","Sunset","Midnight"}
+
+        for i,v in ipairs(themes) do
+            createThemeButton(v, (i-1)*40)
         end
+
+        createFPSButton(240)
+    else
+        subtitleLabel.Text = "Features"
+
+        createToggle("Speed",0,"speed",togglesFrame)
+        createToggle("Fly",40,"fly",togglesFrame)
+        createToggle("ESP",80,"esp",togglesFrame)
     end
 end
 
 -- SIDEBAR
-local sections = {"Main","Farm","Extra","PVP","Shop","Misc","Settings"}
+local sections = {"Main","Farm","PVP","Settings"}
 
 for i,v in ipairs(sections) do
     local b = Instance.new("TextButton")
-    b.Size = UDim2.new(1,-24,0,36)
-    b.Position = UDim2.new(0,12,0,i*42)
+    b.Size = UDim2.new(1,-20,0,36)
+    b.Position = UDim2.new(0,10,0,i*42)
     b.Text = v
     b.Parent = sidebar
-    Instance.new("UICorner",b)
+    Instance.new("UICorner", b).CornerRadius = UDim.new(0,6)
 
     b.MouseButton1Click:Connect(function()
         loadSection(v)
     end)
 end
 
--- DRAG FIX
-local dragging,dragStart,startPos
+-- DRAG
+local dragging, dragStart, startPos
 
 topBar.InputBegan:Connect(function(i)
-    if i.UserInputType==Enum.UserInputType.MouseButton1 then
-        dragging=true
-        dragStart=i.Position
-        startPos=mainFrame.Position
+    if i.UserInputType == Enum.UserInputType.MouseButton1 then
+        dragging = true
+        dragStart = i.Position
+        startPos = mainFrame.Position
     end
 end)
 
 UserInputService.InputChanged:Connect(function(i)
-    if dragging then
-        local d=i.Position-dragStart
-        mainFrame.Position=UDim2.new(startPos.X.Scale,startPos.X.Offset+d.X,startPos.Y.Scale,startPos.Y.Offset+d.Y)
+    if dragging and i.UserInputType == Enum.UserInputType.MouseMovement then
+        local d = i.Position - dragStart
+        mainFrame.Position = UDim2.new(startPos.X.Scale, startPos.X.Offset + d.X, startPos.Y.Scale, startPos.Y.Offset + d.Y)
     end
 end)
 
-print("SairHub Loaded Clean v2") 
+print("SairHub Loaded ✔")
